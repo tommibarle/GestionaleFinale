@@ -10,6 +10,7 @@ import DashboardPage from "@/pages/dashboard-page";
 import ArticlesPage from "@/pages/articles-page";
 import ProductsPage from "@/pages/products-page";
 import OrdersPage from "@/pages/orders-page";
+import UsersPage from "@/pages/users-page";
 import { Route } from "wouter";
 
 function Router() {
@@ -19,6 +20,7 @@ function Router() {
       <ProtectedRoute path="/articoli" component={ArticlesPage} />
       <ProtectedRoute path="/prodotti" component={ProductsPage} />
       <ProtectedRoute path="/ordini" component={OrdersPage} />
+      <ProtectedRoute path="/utenti" component={UsersPage} />
       <Route path="/auth" component={AuthPage} />
       <Route component={NotFound} />
     </Switch>

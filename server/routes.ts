@@ -22,6 +22,14 @@ const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   res.status(401).json({ message: "Autenticazione richiesta" });
 };
 
+// Middleware to check if user is admin
+const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (req.isAuthenticated() && (req.user as Express.User).role === "admin") {
+    return next();
+  }
+  res.status(403).json({ message: "Permesso negato. Richiesti privilegi di amministratore." });
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
   setupAuth(app);
@@ -412,6 +420,141 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       res.status(500).json({ message: "Errore durante il recupero dei dati della dashboard" });
+    }
+  });
+
+  // Users routes (solo gli admin possono gestire gli utenti)
+  app.get("/api/users", isAdmin, async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      // Rimuovi le password dagli utenti nella risposta
+      const sanitizedUsers = users.map(({ password, ...rest }) => rest);
+      res.json(sanitizedUsers);
+    } catch (error) {
+      console.error("Errore nel recupero degli utenti:", error);
+      res.status(500).json({ message: "Errore durante il recupero degli utenti" });
+    }
+  });
+
+  app.get("/api/users/:id", isAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const user = await storage.getUser(id);
+      
+      if (!user) {
+        return res.status(404).json({ message: "Utente non trovato" });
+      }
+      
+      // Rimuovi la password dalla risposta
+      const { password, ...sanitizedUser } = user;
+      res.json(sanitizedUser);
+    } catch (error) {
+      console.error("Errore nel recupero dell'utente:", error);
+      res.status(500).json({ message: "Errore durante il recupero dell'utente" });
+    }
+  });
+
+  app.post("/api/users", isAdmin, async (req, res) => {
+    try {
+      const { user } = req.body;
+      
+      if (!user || !user.email || !user.password || !user.name) {
+        return res.status(400).json({ message: "Dati utente incompleti" });
+      }
+      
+      // Controlla se esiste già un utente con la stessa email
+      const existingUser = await storage.getUserByEmail(user.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "Email già in uso" });
+      }
+      
+      // Hascia la password prima di salvarla
+      const { hashPassword } = await import("./auth");
+      const hashedPassword = await hashPassword(user.password);
+      
+      // Crea l'utente
+      const newUser = await storage.createUser({
+        ...user,
+        password: hashedPassword,
+        role: user.role || "operator" // Default role se non specificato
+      });
+      
+      // Rimuovi la password dalla risposta
+      const { password, ...sanitizedUser } = newUser;
+      res.status(201).json(sanitizedUser);
+    } catch (error) {
+      console.error("Errore nella creazione dell'utente:", error);
+      res.status(500).json({ message: "Errore durante la creazione dell'utente" });
+    }
+  });
+
+  app.put("/api/users/:id", isAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const { user } = req.body;
+      
+      if (!user) {
+        return res.status(400).json({ message: "Dati utente non forniti" });
+      }
+      
+      // Per l'utente admin principale (ID 1), non consentire la modifica del ruolo a non-admin
+      if (id === 1 && user.role && user.role !== "admin") {
+        return res.status(403).json({ message: "Non è possibile modificare il ruolo dell'amministratore principale" });
+      }
+      
+      // Controlla se c'è una nuova email che è già in uso
+      if (user.email) {
+        const existingUser = await storage.getUserByEmail(user.email);
+        if (existingUser && existingUser.id !== id) {
+          return res.status(400).json({ message: "Email già in uso" });
+        }
+      }
+      
+      // Se viene fornita una nuova password, hashala
+      let userData = { ...user };
+      if (user.password) {
+        const { hashPassword } = await import("./auth");
+        userData.password = await hashPassword(user.password);
+      }
+      
+      // Aggiorna l'utente
+      const updatedUser = await storage.updateUser(id, userData);
+      if (!updatedUser) {
+        return res.status(404).json({ message: "Utente non trovato" });
+      }
+      
+      // Rimuovi la password dalla risposta
+      const { password, ...sanitizedUser } = updatedUser;
+      res.json(sanitizedUser);
+    } catch (error) {
+      console.error("Errore nell'aggiornamento dell'utente:", error);
+      res.status(500).json({ message: "Errore durante l'aggiornamento dell'utente" });
+    }
+  });
+
+  app.delete("/api/users/:id", isAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      
+      // Non consentire l'eliminazione dell'utente admin principale
+      if (id === 1) {
+        return res.status(403).json({ message: "Non è possibile eliminare l'amministratore principale" });
+      }
+      
+      // Non consentire l'eliminazione del proprio account
+      if (id === (req.user as Express.User).id) {
+        return res.status(403).json({ message: "Non è possibile eliminare il proprio account" });
+      }
+      
+      const deleted = await storage.deleteUser(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Utente non trovato" });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      console.error("Errore nell'eliminazione dell'utente:", error);
+      res.status(500).json({ message: "Errore durante l'eliminazione dell'utente" });
     }
   });
 

@@ -62,12 +62,13 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
       icon: <ShoppingCart className="w-5" />,
       active: location === "/ordini",
     },
-    {
+    // Mostra il link Utenti solo agli amministratori
+    ...(user?.role === 'admin' ? [{
       href: "/utenti",
       label: "Utenti",
       icon: <Users className="w-5" />,
       active: location === "/utenti",
-    },
+    }] : []),
   ];
 
   return (
