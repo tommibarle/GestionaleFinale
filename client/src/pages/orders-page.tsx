@@ -102,9 +102,44 @@ const OrdersPage = () => {
     setFormOpen(true);
   };
   
+  // Mutation per aggiornare lo stato dell'ordine
+  const updateOrderMutation = useMutation({
+    mutationFn: async ({id, status}: {id: number, status: string}) => {
+      const res = await apiRequest("PUT", `/api/orders/${id}`, {
+        order: { status }
+      });
+      return res.json();
+    },
+    onSuccess: (updatedOrder) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      setSelectedOrder(updatedOrder);
+      toast({
+        title: "Ordine aggiornato",
+        description: "Lo stato dell'ordine è stato aggiornato con successo",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Errore",
+        description: `Si è verificato un errore: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleViewOrder = (order: OrderWithProducts) => {
     setSelectedOrder(order);
     setViewDialogOpen(true);
+  };
+  
+  const handleUpdateOrderStatus = (status: string) => {
+    if (selectedOrder) {
+      updateOrderMutation.mutate({
+        id: selectedOrder.id,
+        status
+      });
+    }
   };
   
   const handleDeleteOrder = (order: OrderWithProducts) => {
@@ -242,6 +277,45 @@ const OrdersPage = () => {
                           ))}
                         </TableBody>
                       </Table>
+                    </div>
+                    
+                    <div className="flex justify-end space-x-2 pt-2">
+                      {selectedOrder.status === "pending" && (
+                        <Button 
+                          onClick={() => handleUpdateOrderStatus("completed")}
+                          disabled={updateOrderMutation.isPending}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          {updateOrderMutation.isPending ? "Aggiornamento..." : "Segna come completato"}
+                        </Button>
+                      )}
+                      {selectedOrder.status === "pending" && (
+                        <Button 
+                          onClick={() => handleUpdateOrderStatus("cancelled")}
+                          disabled={updateOrderMutation.isPending}
+                          variant="destructive"
+                        >
+                          {updateOrderMutation.isPending ? "Aggiornamento..." : "Annulla ordine"}
+                        </Button>
+                      )}
+                      {selectedOrder.status === "completed" && (
+                        <Button 
+                          onClick={() => handleUpdateOrderStatus("pending")}
+                          disabled={updateOrderMutation.isPending}
+                          variant="outline"
+                        >
+                          {updateOrderMutation.isPending ? "Aggiornamento..." : "Riapri ordine"}
+                        </Button>
+                      )}
+                      {selectedOrder.status === "cancelled" && (
+                        <Button 
+                          onClick={() => handleUpdateOrderStatus("pending")}
+                          disabled={updateOrderMutation.isPending}
+                          variant="outline"
+                        >
+                          {updateOrderMutation.isPending ? "Aggiornamento..." : "Riapri ordine"}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 )}

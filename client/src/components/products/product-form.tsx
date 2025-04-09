@@ -84,7 +84,7 @@ const ProductForm = ({
       code: "",
       name: "",
       description: "",
-      category: "",
+      category: categories[0], // imposta il primo valore come default
     },
   });
   
@@ -116,7 +116,7 @@ const ProductForm = ({
         code: "",
         name: "",
         description: "",
-        category: "",
+        category: categories[0],
       });
       
       setSelectedArticles({});
