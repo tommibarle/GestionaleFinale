@@ -456,27 +456,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/users", isAdmin, async (req, res) => {
     try {
-      const { user } = req.body;
+      const userData = req.body;
       
-      if (!user || !user.email || !user.password || !user.name) {
+      if (!userData || !userData.email || !userData.password || !userData.name) {
         return res.status(400).json({ message: "Dati utente incompleti" });
       }
       
       // Controlla se esiste già un utente con la stessa email
-      const existingUser = await storage.getUserByEmail(user.email);
+      const existingUser = await storage.getUserByEmail(userData.email);
       if (existingUser) {
         return res.status(400).json({ message: "Email già in uso" });
       }
       
       // Hascia la password prima di salvarla
       const { hashPassword } = await import("./auth");
-      const hashedPassword = await hashPassword(user.password);
+      const hashedPassword = await hashPassword(userData.password);
       
       // Crea l'utente
       const newUser = await storage.createUser({
-        ...user,
+        ...userData,
         password: hashedPassword,
-        role: user.role || "operator" // Default role se non specificato
+        role: userData.role || "operator" // Default role se non specificato
       });
       
       // Rimuovi la password dalla risposta
@@ -491,34 +491,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/users/:id", isAdmin, async (req, res) => {
     try {
       const id = Number(req.params.id);
-      const { user } = req.body;
+      const userData = req.body;
       
-      if (!user) {
+      if (!userData) {
         return res.status(400).json({ message: "Dati utente non forniti" });
       }
       
       // Per l'utente admin principale (ID 1), non consentire la modifica del ruolo a non-admin
-      if (id === 1 && user.role && user.role !== "admin") {
+      if (id === 1 && userData.role && userData.role !== "admin") {
         return res.status(403).json({ message: "Non è possibile modificare il ruolo dell'amministratore principale" });
       }
       
       // Controlla se c'è una nuova email che è già in uso
-      if (user.email) {
-        const existingUser = await storage.getUserByEmail(user.email);
+      if (userData.email) {
+        const existingUser = await storage.getUserByEmail(userData.email);
         if (existingUser && existingUser.id !== id) {
           return res.status(400).json({ message: "Email già in uso" });
         }
       }
       
       // Se viene fornita una nuova password, hashala
-      let userData = { ...user };
-      if (user.password) {
+      let updatedUserData = { ...userData };
+      if (userData.password) {
         const { hashPassword } = await import("./auth");
-        userData.password = await hashPassword(user.password);
+        updatedUserData.password = await hashPassword(userData.password);
       }
       
       // Aggiorna l'utente
-      const updatedUser = await storage.updateUser(id, userData);
+      const updatedUser = await storage.updateUser(id, updatedUserData);
       if (!updatedUser) {
         return res.status(404).json({ message: "Utente non trovato" });
       }

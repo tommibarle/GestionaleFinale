@@ -115,11 +115,11 @@ const UsersPage = () => {
     mutationFn: async (data: UserFormData) => {
       if (data.id) {
         // Aggiorna utente esistente
-        const res = await apiRequest("PUT", `/api/users/${data.id}`, { user: data });
+        const res = await apiRequest("PUT", `/api/users/${data.id}`, data);
         return res.json();
       } else {
         // Crea nuovo utente
-        const res = await apiRequest("POST", "/api/users", { user: data });
+        const res = await apiRequest("POST", "/api/users", data);
         return res.json();
       }
     },
