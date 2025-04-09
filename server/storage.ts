@@ -8,7 +8,7 @@ const MemoryStore = createMemoryStore(session);
 // Interface for storage operations
 export interface IStorage {
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Using any for session store type
 
   // User operations
   getUser(id: number): Promise<User | undefined>;
@@ -56,7 +56,7 @@ export class MemStorage implements IStorage {
   private orders: Map<number, Order>;
   private orderProducts: Map<number, OrderProduct>;
   
-  public sessionStore: session.SessionStore;
+  public sessionStore: any; // Using any for session store type
   
   private userId: number;
   private articleId: number;
@@ -84,10 +84,10 @@ export class MemStorage implements IStorage {
       checkPeriod: 86400000 // 1 day in ms
     });
     
-    // Add default admin user
+    // Add default admin user with scrypt-compatible password hash for "password"
     this.createUser({
       email: "admin@esempio.it",
-      password: "$2b$10$X/lDRHjm2jcFTFQ0MRHYu.C4Hsw1wTTCsXLJ5ZxJ9H0qZEHE8Lm1O", // "password"
+      password: "c0067d4af4e87f00dbac63b6156828237059172d1bbeac67427345d6a9fda484e7c0e93634ec357c0e9b4e3d2b6603d319b2618fdb53b3e0c8f51b1da0892135.ab468950522f2dec2e0dfcd16ec35aa5", // "password"
       name: "Admin Manager",
       role: "admin"
     });

@@ -1,15 +1,23 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import { Express } from "express";
+import { Express, Request } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
-import { User } from "@shared/schema";
+import { User, InsertUser } from "@shared/schema";
 
+// Fix recursive reference by creating a custom interface
 declare global {
   namespace Express {
-    interface User extends User {}
+    // Define user interface to match our User type but avoid recursive reference
+    interface User {
+      id: number;
+      email: string;
+      password: string;
+      name: string;
+      role: string;
+    }
   }
 }
 
@@ -22,10 +30,18 @@ async function hashPassword(password: string) {
 }
 
 async function comparePasswords(supplied: string, stored: string) {
-  const [hashed, salt] = stored.split(".");
-  const hashedBuf = Buffer.from(hashed, "hex");
-  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-  return timingSafeEqual(hashedBuf, suppliedBuf);
+  try {
+    const [hashed, salt] = stored.split(".");
+    if (!hashed || !salt) {
+      return false; // Invalid stored password format
+    }
+    const hashedBuf = Buffer.from(hashed, "hex");
+    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+    return timingSafeEqual(hashedBuf, suppliedBuf);
+  } catch (error) {
+    console.error("Error comparing passwords:", error);
+    return false;
+  }
 }
 
 export function setupAuth(app: Express) {
@@ -92,15 +108,15 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
+    passport.authenticate("local", (err: Error | null, user: Express.User | false, info: { message: string } | undefined) => {
       if (err) return next(err);
       if (!user) return res.status(401).json({ message: info?.message || "Autenticazione fallita" });
       
-      req.login(user, (err) => {
+      req.login(user, (err: Error | null) => {
         if (err) return next(err);
         
         // Remove password from response
-        const { password, ...userWithoutPassword } = user;
+        const { password, ...userWithoutPassword } = user as User;
         
         res.status(200).json(userWithoutPassword);
       });
