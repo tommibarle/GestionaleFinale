@@ -28,8 +28,8 @@ interface ProductGridProps {
 
 const ProductGrid = ({ onEdit, onDelete }: ProductGridProps) => {
   const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [availabilityFilter, setAvailabilityFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [availabilityFilter, setAvailabilityFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
@@ -54,10 +54,10 @@ const ProductGrid = ({ onEdit, onDelete }: ProductGridProps) => {
       (product.description && product.description.toLowerCase().includes(search.toLowerCase()));
 
     const matchesCategory =
-      categoryFilter === "" || product.category === categoryFilter;
+      categoryFilter === "all" || product.category === categoryFilter;
 
     const matchesAvailability =
-      availabilityFilter === "" || product.availability === availabilityFilter;
+      availabilityFilter === "all" || product.availability === availabilityFilter;
 
     return matchesSearch && matchesCategory && matchesAvailability;
   });
@@ -121,7 +121,7 @@ const ProductGrid = ({ onEdit, onDelete }: ProductGridProps) => {
                 <SelectValue placeholder="Tutte le categorie" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutte le categorie</SelectItem>
+                <SelectItem value="all">Tutte le categorie</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category}
@@ -134,7 +134,7 @@ const ProductGrid = ({ onEdit, onDelete }: ProductGridProps) => {
                 <SelectValue placeholder="Tutti gli stati" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutti gli stati</SelectItem>
+                <SelectItem value="all">Tutti gli stati</SelectItem>
                 <SelectItem value="available">Disponibile</SelectItem>
                 <SelectItem value="limited">Disponibilità limitata</SelectItem>
                 <SelectItem value="unavailable">Non disponibile</SelectItem>

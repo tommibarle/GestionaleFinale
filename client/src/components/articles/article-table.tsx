@@ -35,8 +35,8 @@ interface ArticleTableProps {
 
 const ArticleTable = ({ onEdit, onDelete }: ArticleTableProps) => {
   const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -61,10 +61,10 @@ const ArticleTable = ({ onEdit, onDelete }: ArticleTableProps) => {
       (article.description && article.description.toLowerCase().includes(search.toLowerCase()));
 
     const matchesCategory =
-      categoryFilter === "" || article.category === categoryFilter;
+      categoryFilter === "all" || article.category === categoryFilter;
 
     const matchesStatus =
-      statusFilter === "" || article.status === statusFilter;
+      statusFilter === "all" || article.status === statusFilter;
 
     return matchesSearch && matchesCategory && matchesStatus;
   });
@@ -132,7 +132,7 @@ const ArticleTable = ({ onEdit, onDelete }: ArticleTableProps) => {
                 <SelectValue placeholder="Tutte le categorie" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutte le categorie</SelectItem>
+                <SelectItem value="all">Tutte le categorie</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category}
@@ -145,7 +145,7 @@ const ArticleTable = ({ onEdit, onDelete }: ArticleTableProps) => {
                 <SelectValue placeholder="Tutti gli stati" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutti gli stati</SelectItem>
+                <SelectItem value="all">Tutti gli stati</SelectItem>
                 <SelectItem value="available">Disponibile</SelectItem>
                 <SelectItem value="low">Sotto soglia</SelectItem>
                 <SelectItem value="critical">Critico</SelectItem>

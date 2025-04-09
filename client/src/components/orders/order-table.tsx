@@ -35,7 +35,7 @@ interface OrderTableProps {
 
 const OrderTable = ({ onView, onDelete }: OrderTableProps) => {
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -60,7 +60,7 @@ const OrderTable = ({ onView, onDelete }: OrderTableProps) => {
       (order.notes && order.notes.toLowerCase().includes(search.toLowerCase()));
 
     const matchesStatus =
-      statusFilter === "" || order.status === statusFilter;
+      statusFilter === "all" || order.status === statusFilter;
 
     const matchesDate =
       dateFilter === "" ||
@@ -139,7 +139,7 @@ const OrderTable = ({ onView, onDelete }: OrderTableProps) => {
                 <SelectValue placeholder="Tutti gli stati" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutti gli stati</SelectItem>
+                <SelectItem value="all">Tutti gli stati</SelectItem>
                 <SelectItem value="completed">Completato</SelectItem>
                 <SelectItem value="pending">In corso</SelectItem>
                 <SelectItem value="cancelled">Annullato</SelectItem>
