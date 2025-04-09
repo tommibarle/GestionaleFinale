@@ -63,7 +63,7 @@ const ProductGrid = ({ onEdit, onDelete }: ProductGridProps) => {
   });
 
   // Get unique categories for filter
-  const categories = [...new Set(products.map((product) => product.category))];
+  const categories = [...new Set(products.map((product) => product.category || "Altro"))];
 
   // Pagination
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
