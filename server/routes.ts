@@ -78,7 +78,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/categories/:id", isAuthenticated, async (req, res) => {
+  app.patch("/api/categories/:id", isAuthenticated, async (req, res) => {
     try {
       const id = Number(req.params.id);
       
