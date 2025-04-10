@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Pencil, Trash2, Search } from "lucide-react";
 import { ProductWithArticles } from "@shared/schema";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -32,6 +33,7 @@ const ProductGrid = ({ onEdit, onDelete }: ProductGridProps) => {
   const [availabilityFilter, setAvailabilityFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
+  const isMobile = useIsMobile();
 
   const { data: products, isLoading } = useQuery<ProductWithArticles[]>({
     queryKey: ["/api/products"],
@@ -101,23 +103,23 @@ const ProductGrid = ({ onEdit, onDelete }: ProductGridProps) => {
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-          <div className="relative flex-1 max-w-md">
+      <div className="bg-white rounded-lg shadow-sm p-3 md:p-4 mb-4 md:mb-6">
+        <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between md:gap-4">
+          <div className="relative flex-1">
             <Input
               type="text"
               placeholder="Cerca prodotti..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full"
+              className="pl-10 pr-4 py-2 w-full text-sm"
             />
             <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400">
               <Search size={16} />
             </div>
           </div>
-          <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[160px] text-sm">
                 <SelectValue placeholder="Tutte le categorie" />
               </SelectTrigger>
               <SelectContent>
@@ -130,7 +132,7 @@ const ProductGrid = ({ onEdit, onDelete }: ProductGridProps) => {
               </SelectContent>
             </Select>
             <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[160px] text-sm">
                 <SelectValue placeholder="Tutti gli stati" />
               </SelectTrigger>
               <SelectContent>
@@ -144,17 +146,19 @@ const ProductGrid = ({ onEdit, onDelete }: ProductGridProps) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
         {paginatedProducts.map((product) => (
           <Card key={product.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <CardContent className="p-5">
+            <CardContent className="p-3 md:p-5">
               <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-lg font-semibold text-neutral-800">{product.name}</h3>
-                  <p className="text-sm text-neutral-600 mt-1">{product.description}</p>
+                <div className="flex-1 pr-2">
+                  <h3 className="text-base md:text-lg font-semibold text-neutral-800 line-clamp-1">{product.name}</h3>
+                  {product.description && (
+                    <p className="text-xs md:text-sm text-neutral-600 mt-1 line-clamp-2">{product.description}</p>
+                  )}
                 </div>
                 <span
-                  className={`px-2 py-1 text-xs font-semibold rounded ${getAvailabilityBadgeClass(
+                  className={`px-2 py-1 text-xs font-semibold rounded whitespace-nowrap ${getAvailabilityBadgeClass(
                     product.availability
                   )}`}
                 >
@@ -162,32 +166,33 @@ const ProductGrid = ({ onEdit, onDelete }: ProductGridProps) => {
                 </span>
               </div>
 
-              <div className="mt-4">
-                <h4 className="text-sm font-medium text-neutral-700 mb-2">
+              <div className="mt-3 md:mt-4">
+                <h4 className="text-xs md:text-sm font-medium text-neutral-700 mb-1 md:mb-2">
                   Articoli inclusi:
                 </h4>
-                <ul className="text-sm text-neutral-600 space-y-1">
+                <ul className="text-xs md:text-sm text-neutral-600 space-y-1 max-h-[90px] overflow-y-auto pr-1">
                   {product.articles.map((pa) => (
                     <li
                       key={pa.id}
                       className="flex justify-between items-center"
                     >
-                      <span>{pa.article.name}</span>
-                      <span className="font-medium">x{pa.quantity}</span>
+                      <span className="line-clamp-1 pr-2">{pa.article.name}</span>
+                      <span className="font-medium whitespace-nowrap">x{pa.quantity}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-neutral-200 flex justify-between items-center">
+              <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-neutral-200 flex justify-between items-center">
                 <div>
-                  <span className="text-sm text-neutral-500">Codice: {product.code}</span>
+                  <span className="text-xs md:text-sm text-neutral-500">Codice: {product.code}</span>
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex space-x-1 md:space-x-2">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => onEdit(product)}
+                    aria-label="Modifica prodotto"
                   >
                     <Pencil className="h-4 w-4 text-primary" />
                   </Button>
@@ -195,6 +200,7 @@ const ProductGrid = ({ onEdit, onDelete }: ProductGridProps) => {
                     variant="ghost"
                     size="sm"
                     onClick={() => onDelete(product)}
+                    aria-label="Elimina prodotto"
                   >
                     <Trash2 className="h-4 w-4 text-red-500" />
                   </Button>
@@ -206,9 +212,9 @@ const ProductGrid = ({ onEdit, onDelete }: ProductGridProps) => {
       </div>
 
       {totalPages > 1 && (
-        <div className="mt-6 flex justify-center">
+        <div className="mt-4 md:mt-6 flex justify-center">
           <Pagination>
-            <PaginationContent>
+            <PaginationContent className="flex-wrap justify-center">
               <PaginationItem>
                 <PaginationPrevious
                   href="#"
@@ -216,24 +222,40 @@ const ProductGrid = ({ onEdit, onDelete }: ProductGridProps) => {
                     e.preventDefault();
                     if (currentPage > 1) setCurrentPage(currentPage - 1);
                   }}
-                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                  className={`text-xs md:text-sm ${currentPage === 1 ? "pointer-events-none opacity-50" : ""}`}
                 />
               </PaginationItem>
               
-              {Array.from({ length: totalPages }).map((_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setCurrentPage(i + 1);
-                    }}
-                    isActive={currentPage === i + 1}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
+              {Array.from({ length: totalPages }).map((_, i) => {
+                // On mobile, only show a limited number of page links
+                const shouldShowAll = totalPages <= 5; // Show all if total pages is small
+                const shouldShow = shouldShowAll || 
+                  i === 0 || // Always show first page
+                  i === totalPages - 1 || // Always show last page
+                  Math.abs(i + 1 - currentPage) <= 1; // Show current page and one before/after
+                
+                if (!shouldShow && (i === 1 || i === totalPages - 2)) {
+                  return <PaginationItem key={i} className="mx-1">...</PaginationItem>;
+                }
+                
+                if (!shouldShow) return null;
+                
+                return (
+                  <PaginationItem key={i}>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(i + 1);
+                      }}
+                      isActive={currentPage === i + 1}
+                      className="text-xs md:text-sm"
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
               
               <PaginationItem>
                 <PaginationNext
@@ -242,11 +264,14 @@ const ProductGrid = ({ onEdit, onDelete }: ProductGridProps) => {
                     e.preventDefault();
                     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
                   }}
-                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                  className={`text-xs md:text-sm ${currentPage === totalPages ? "pointer-events-none opacity-50" : ""}`}
                 />
               </PaginationItem>
             </PaginationContent>
           </Pagination>
+          <div className="text-xs md:text-sm text-center text-gray-600 mt-2">
+            {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredProducts.length)} di {filteredProducts.length}
+          </div>
         </div>
       )}
     </>

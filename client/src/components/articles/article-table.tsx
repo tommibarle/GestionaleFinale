@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Pencil, Trash2, Search } from "lucide-react";
 import { ArticleWithStatus } from "@shared/schema";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Table,
   TableBody,
@@ -39,6 +40,7 @@ const ArticleTable = ({ onEdit, onDelete }: ArticleTableProps) => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const isMobile = useIsMobile();
 
   const { data: articles, isLoading } = useQuery<ArticleWithStatus[]>({
     queryKey: ["/api/articles"],
