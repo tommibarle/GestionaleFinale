@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { 
   LayoutDashboard, 
   Package, 
@@ -74,8 +75,8 @@ const DashboardPage = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatDate = (dateString: string | Date) => {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
     return date.toLocaleDateString("it-IT", {
       day: "2-digit",
       month: "2-digit",
@@ -117,14 +118,14 @@ const DashboardPage = () => {
     <div className="min-h-screen flex flex-col md:flex-row">
       <Sidebar isMobile={isMobile} />
       
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto pb-16 md:pb-0">
         <Header title="Dashboard" notifications={lowStockCount} />
         
-        <section className="p-4 md:p-6">
+        <section className="p-3 md:p-6">
           <div className="container mx-auto">
             {data?.lowStockArticles && data.lowStockArticles.length > 0 && (
-              <div className="mb-6">
-                <Alert variant="warning">
+              <div className="mb-4 md:mb-6">
+                <Alert className="bg-yellow-50 border-yellow-200 text-yellow-800">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertTitle>Attenzione</AlertTitle>
                   <AlertDescription>
@@ -134,7 +135,7 @@ const DashboardPage = () => {
               </div>
             )}
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
               <DashboardCard
                 title="Articoli totali"
                 value={isLoading ? "..." : data?.totalArticles || 0}
@@ -164,34 +165,34 @@ const DashboardPage = () => {
               />
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white rounded-lg shadow-sm p-5">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-neutral-800">Ultimi Ordini</h3>
-                  <a href="/ordini" className="text-primary text-sm hover:underline">Vedi tutti</a>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              <div className="bg-white rounded-lg shadow-sm p-3 md:p-5">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h3 className="text-base md:text-lg font-semibold text-neutral-800">Ultimi Ordini</h3>
+                  <Link href="/ordini" className="text-primary text-xs md:text-sm hover:underline">Vedi tutti</Link>
                 </div>
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>Data</TableHead>
-                        <TableHead>Prodotti</TableHead>
-                        <TableHead>Stato</TableHead>
+                        <TableHead className="text-xs md:text-sm">ID</TableHead>
+                        <TableHead className="text-xs md:text-sm">Data</TableHead>
+                        <TableHead className="text-xs md:text-sm">Prodotti</TableHead>
+                        <TableHead className="text-xs md:text-sm">Stato</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {isLoading ? (
                         <TableRow>
-                          <TableCell colSpan={4} className="text-center">Caricamento...</TableCell>
+                          <TableCell colSpan={4} className="text-center text-xs md:text-sm">Caricamento...</TableCell>
                         </TableRow>
                       ) : data?.recentOrders && data.recentOrders.length > 0 ? (
                         data.recentOrders.map((order) => (
                           <TableRow key={order.id}>
-                            <TableCell className="whitespace-nowrap">{order.code}</TableCell>
-                            <TableCell className="whitespace-nowrap">{formatDate(order.createdAt)}</TableCell>
-                            <TableCell className="whitespace-nowrap">{order.products.length} prodotti</TableCell>
-                            <TableCell className="whitespace-nowrap">
+                            <TableCell className="whitespace-nowrap text-xs md:text-sm">{order.code}</TableCell>
+                            <TableCell className="whitespace-nowrap text-xs md:text-sm">{formatDate(order.createdAt)}</TableCell>
+                            <TableCell className="whitespace-nowrap text-xs md:text-sm">{order.products.length} prodotti</TableCell>
+                            <TableCell className="whitespace-nowrap text-xs md:text-sm">
                               <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(order.status)}`}>
                                 {getStatusText(order.status)}
                               </span>
@@ -200,7 +201,7 @@ const DashboardPage = () => {
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={4} className="text-center">Nessun ordine recente</TableCell>
+                          <TableCell colSpan={4} className="text-center text-xs md:text-sm">Nessun ordine recente</TableCell>
                         </TableRow>
                       )}
                     </TableBody>
@@ -208,33 +209,33 @@ const DashboardPage = () => {
                 </div>
               </div>
               
-              <div className="bg-white rounded-lg shadow-sm p-5">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-neutral-800">Articoli Sotto Soglia</h3>
-                  <a href="/articoli" className="text-primary text-sm hover:underline">Gestisci articoli</a>
+              <div className="bg-white rounded-lg shadow-sm p-3 md:p-5">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h3 className="text-base md:text-lg font-semibold text-neutral-800">Articoli Sotto Soglia</h3>
+                  <Link href="/articoli" className="text-primary text-xs md:text-sm hover:underline">Gestisci articoli</Link>
                 </div>
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Articolo</TableHead>
-                        <TableHead>Quantità</TableHead>
-                        <TableHead>Soglia</TableHead>
-                        <TableHead>Stato</TableHead>
+                        <TableHead className="text-xs md:text-sm">Articolo</TableHead>
+                        <TableHead className="text-xs md:text-sm">Quantità</TableHead>
+                        <TableHead className="text-xs md:text-sm">Soglia</TableHead>
+                        <TableHead className="text-xs md:text-sm">Stato</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {isLoading ? (
                         <TableRow>
-                          <TableCell colSpan={4} className="text-center">Caricamento...</TableCell>
+                          <TableCell colSpan={4} className="text-center text-xs md:text-sm">Caricamento...</TableCell>
                         </TableRow>
                       ) : data?.lowStockArticles && data.lowStockArticles.length > 0 ? (
                         data.lowStockArticles.map((article) => (
                           <TableRow key={article.id}>
-                            <TableCell className="whitespace-nowrap">{article.name}</TableCell>
-                            <TableCell className="whitespace-nowrap font-medium">{article.quantity}</TableCell>
-                            <TableCell className="whitespace-nowrap">{article.threshold}</TableCell>
-                            <TableCell className="whitespace-nowrap">
+                            <TableCell className="whitespace-nowrap text-xs md:text-sm">{article.name}</TableCell>
+                            <TableCell className="whitespace-nowrap font-medium text-xs md:text-sm">{article.quantity}</TableCell>
+                            <TableCell className="whitespace-nowrap text-xs md:text-sm">{article.threshold}</TableCell>
+                            <TableCell className="whitespace-nowrap text-xs md:text-sm">
                               <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getArticleStatusBadgeClass(article.status)}`}>
                                 {getArticleStatusText(article.status)}
                               </span>
@@ -243,7 +244,7 @@ const DashboardPage = () => {
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={4} className="text-center">Nessun articolo sotto soglia</TableCell>
+                          <TableCell colSpan={4} className="text-center text-xs md:text-sm">Nessun articolo sotto soglia</TableCell>
                         </TableRow>
                       )}
                     </TableBody>

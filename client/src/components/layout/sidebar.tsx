@@ -83,6 +83,7 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
             <button
               onClick={toggleMobileMenu}
               className="md:hidden text-neutral-700 hover:text-primary"
+              aria-label="Toggle menu"
             >
               <Menu size={24} />
             </button>
@@ -100,6 +101,7 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
             <Link
               key={link.href}
               href={link.href}
+              onClick={() => isMobile && setMobileMenuOpen(false)}
               className={`flex items-center space-x-3 py-2 px-3 rounded-md ${
                 link.active
                   ? "bg-primary/10 text-primary"
@@ -113,7 +115,7 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
         </div>
       </nav>
 
-      <div className="absolute bottom-0 w-full border-t border-neutral-200 p-4">
+      <div className={`${isMobile ? (mobileMenuOpen ? "block" : "hidden") : "block"} md:block md:absolute md:bottom-0 md:left-0 w-full border-t border-neutral-200 p-4`}>
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center">
             <span>{userInitials}</span>
@@ -128,6 +130,7 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
             onClick={handleLogout}
             className="text-neutral-700 hover:text-primary"
             disabled={logoutMutation.isPending}
+            aria-label="Logout"
           >
             <LogOut size={20} />
           </button>
