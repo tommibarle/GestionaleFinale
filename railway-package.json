@@ -1,0 +1,14 @@
+{
+  "name": "rest-express-railway",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "preinstall": "cp railway-package.json package.json",
+    "build": "vite build && npx esbuild server/railway.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/server.js",
+    "start": "NODE_ENV=production node --experimental-modules dist/server.js",
+    "railway:build": "npm run build",
+    "railway:start": "npm run db:push && npm start",
+    "db:push": "drizzle-kit push"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "build": {
+    "builder": "nixpacks",
+    "buildCommand": "cp railway-package.json package.json && npm run railway:build"
+  },
+  "deploy": {
+    "restartPolicyType": "on_failure",
+    "restartPolicyMaxRetries": 10,
+    "startCommand": "npm run railway:start"
+  }
+}
