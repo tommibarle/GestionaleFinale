@@ -7,13 +7,11 @@ import {
   InsertArticle,
   InsertProduct,
   InsertOrder,
-  InsertCategory,
   insertArticleSchema,
   insertProductSchema,
   insertOrderSchema,
   insertProductArticleSchema,
-  insertOrderProductSchema,
-  insertCategorySchema
+  insertOrderProductSchema
 } from "@shared/schema";
 
 // Middleware to check if user is authenticated
@@ -36,97 +34,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
   setupAuth(app);
   
-  // Categories routes
-  app.get("/api/categories", isAuthenticated, async (req, res) => {
-    try {
-      const categories = await storage.getAllCategories();
-      res.json(categories);
-    } catch (error) {
-      res.status(500).json({ message: "Errore durante il recupero delle categorie" });
-    }
-  });
-
-  app.get("/api/categories/:id", isAuthenticated, async (req, res) => {
-    try {
-      const category = await storage.getCategory(Number(req.params.id));
-      if (!category) {
-        return res.status(404).json({ message: "Categoria non trovata" });
-      }
-      res.json(category);
-    } catch (error) {
-      res.status(500).json({ message: "Errore durante il recupero della categoria" });
-    }
-  });
-
-  app.post("/api/categories", isAuthenticated, async (req, res) => {
-    try {
-      const categoryData = insertCategorySchema.parse(req.body);
-      
-      // Check if code already exists
-      const existingCategory = await storage.getCategoryByCode(categoryData.code);
-      if (existingCategory) {
-        return res.status(400).json({ message: "Codice categoria già esistente" });
-      }
-      
-      const category = await storage.createCategory(categoryData);
-      res.status(201).json(category);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Dati non validi", errors: error.errors });
-      }
-      res.status(500).json({ message: "Errore durante la creazione della categoria" });
-    }
-  });
-
-  app.patch("/api/categories/:id", isAuthenticated, async (req, res) => {
-    try {
-      const id = Number(req.params.id);
-      
-      // Partial update is allowed
-      const categoryData = insertCategorySchema.partial().parse(req.body);
-      
-      // If code is being updated, check for duplicates
-      if (categoryData.code) {
-        const existingCategory = await storage.getCategoryByCode(categoryData.code);
-        if (existingCategory && existingCategory.id !== id) {
-          return res.status(400).json({ message: "Codice categoria già esistente" });
-        }
-      }
-      
-      const updatedCategory = await storage.updateCategory(id, categoryData);
-      if (!updatedCategory) {
-        return res.status(404).json({ message: "Categoria non trovata" });
-      }
-      
-      res.json(updatedCategory);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Dati non validi", errors: error.errors });
-      }
-      res.status(500).json({ message: "Errore durante l'aggiornamento della categoria" });
-    }
-  });
-
-  app.delete("/api/categories/:id", isAuthenticated, async (req, res) => {
-    try {
-      const id = Number(req.params.id);
-      const category = await storage.getCategory(id);
-      
-      if (!category) {
-        return res.status(404).json({ message: "Categoria non trovata" });
-      }
-      
-      const deleted = await storage.deleteCategory(id);
-      
-      if (!deleted) {
-        return res.status(500).json({ message: "Errore durante l'eliminazione della categoria" });
-      }
-      
-      res.status(204).send();
-    } catch (error) {
-      res.status(500).json({ message: "Errore durante l'eliminazione della categoria" });
-    }
-  });
+  // Categories routes hanno stato rimosse
   
   // Articoli (Articles) routes
   app.get("/api/articles", isAuthenticated, async (req, res) => {

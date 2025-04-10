@@ -18,21 +18,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   role: true,
 });
 
-// Categorie degli articoli
-export const categories = pgTable("categories", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  code: text("code").notNull().unique(),
-  description: text("description"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
 
-export const insertCategorySchema = createInsertSchema(categories).pick({
-  name: true,
-  code: true,
-  description: true,
-});
 
 // Articles (basic units)
 export const articles = pgTable("articles", {
@@ -40,8 +26,7 @@ export const articles = pgTable("articles", {
   code: text("code").notNull().unique(),
   name: text("name").notNull(),
   description: text("description"),
-  category: text("category").notNull(), // Manteniamo il testo per retrocompatibilità
-  categoryId: integer("category_id").references(() => categories.id),  // Nuova colonna che riferisce all'ID della categoria
+  category: text("category").notNull(),
   quantity: integer("quantity").notNull().default(0),
   threshold: integer("threshold").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -53,7 +38,6 @@ export const insertArticleSchema = createInsertSchema(articles).pick({
   name: true,
   description: true,
   category: true,
-  categoryId: true, // Aggiungiamo il riferimento alla categoria
   quantity: true,
   threshold: true,
 });
@@ -131,9 +115,6 @@ export const insertOrderProductSchema = createInsertSchema(orderProducts).pick({
 // Types for ORM
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
-
-export type Category = typeof categories.$inferSelect;
-export type InsertCategory = z.infer<typeof insertCategorySchema>;
 
 export type Article = typeof articles.$inferSelect;
 export type InsertArticle = z.infer<typeof insertArticleSchema>;
