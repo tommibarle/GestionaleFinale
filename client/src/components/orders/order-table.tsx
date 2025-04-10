@@ -19,14 +19,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { 
-  Pagination, 
-  PaginationContent, 
-  PaginationItem, 
-  PaginationLink, 
-  PaginationNext, 
-  PaginationPrevious 
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
 } from "@/components/ui/pagination";
+
+interface OrderWithProducts {
+  id: string;
+  code: string;
+  createdAt: string;
+  status: string;
+  notes?: string;
+  products: {
+    product: { name: string; code: string };
+    quantity: number;
+    price: number; // Added price per unit
+    totalPrice: number; // Added total price for this product
+  }[];
+}
 
 interface OrderTableProps {
   onView: (order: OrderWithProducts) => void;
@@ -178,9 +192,12 @@ const OrderTable = ({ onView, onDelete }: OrderTableProps) => {
                       {order.products.length} prodotti
                     </div>
                     <div className="text-xs text-neutral-500">
-                      {order.products
-                        .map((op) => op.product.name)
-                        .join(", ")}
+                      {order.products.map((op) => (
+                        <>
+                          {op.product.name} (€{(op.price / 100).toFixed(2)} x {op.quantity} = €{(op.totalPrice / 100).toFixed(2)})
+                          {" "}
+                        </>
+                      )).join(", ")}
                     </div>
                   </TableCell>
                   <TableCell>{order.notes || "-"}</TableCell>
@@ -231,7 +248,7 @@ const OrderTable = ({ onView, onDelete }: OrderTableProps) => {
                     className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
                   />
                 </PaginationItem>
-                
+
                 {Array.from({ length: totalPages }).map((_, i) => (
                   <PaginationItem key={i}>
                     <PaginationLink
@@ -246,7 +263,7 @@ const OrderTable = ({ onView, onDelete }: OrderTableProps) => {
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-                
+
                 <PaginationItem>
                   <PaginationNext
                     href="#"

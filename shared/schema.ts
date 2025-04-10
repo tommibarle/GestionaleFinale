@@ -96,6 +96,8 @@ export const orderProducts = pgTable("order_products", {
   orderId: integer("order_id").notNull().references(() => orders.id, { onDelete: "cascade" }),
   productId: integer("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
   quantity: integer("quantity").notNull().default(1),
+  price: integer("price").notNull(),
+  totalPrice: integer("total_price").notNull(),
 });
 
 export const insertOrderProductSchema = createInsertSchema(orderProducts).pick({
@@ -136,17 +138,6 @@ export type ProductWithArticles = Product & {
 export type OrderWithProducts = Order & {
   products: (OrderProduct & { product: Product })[];
 };
-
-// Parameters table
-export const parameters = pgTable("parameters", {
-  id: serial("id").primaryKey(),
-  orderValue: integer("order_value").notNull().default(10),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
-
-export const insertParameterSchema = createInsertSchema(parameters);
-export type Parameter = typeof parameters.$inferSelect;
-export type InsertParameter = z.infer<typeof insertParameterSchema>;
 
 // Extended schemas for forms
 export const loginSchema = z.object({
