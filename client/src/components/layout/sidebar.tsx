@@ -72,7 +72,7 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
   ];
 
   return (
-    <aside className="bg-white shadow-md w-full md:w-64 md:min-h-screen md:flex-shrink-0 transition-all">
+    <aside className="bg-white shadow-md w-full md:w-64 md:min-h-screen md:flex md:flex-col transition-all">
       <div className="p-4 border-b border-neutral-200">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">
@@ -92,7 +92,7 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
       </div>
 
       <nav
-        className={`p-4 ${
+        className={`p-4 flex-grow ${
           isMobile && !mobileMenuOpen ? "hidden" : "block"
         } md:block`}
       >
@@ -115,7 +115,9 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
         </div>
       </nav>
 
-      <div className={`${isMobile ? (mobileMenuOpen ? "block" : "hidden") : "block"} md:block md:absolute md:bottom-0 md:left-0 w-full border-t border-neutral-200 p-4`}>
+      <div className={`${
+        isMobile && !mobileMenuOpen ? "hidden" : "block"
+      } md:block w-full border-t border-neutral-200 p-4 mt-auto`}>
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center">
             <span>{userInitials}</span>

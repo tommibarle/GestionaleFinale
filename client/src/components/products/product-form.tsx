@@ -274,7 +274,7 @@ const ProductForm = ({
                     <FormLabel className="text-xs sm:text-sm">Descrizione</FormLabel>
                     <FormControl>
                       <Textarea 
-                        {...field} 
+                        {...field as any} 
                         placeholder="Descrizione opzionale" 
                         className="text-sm min-h-[60px] sm:min-h-[80px] resize-none"
                       />
