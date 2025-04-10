@@ -162,12 +162,12 @@ const ProductForm = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent className="max-w-[95vw] sm:max-w-[600px] p-4 sm:p-6">
+        <DialogHeader className="mb-2 sm:mb-4">
+          <DialogTitle className="text-lg sm:text-xl">
             {product ? "Modifica Prodotto" : "Nuovo Prodotto"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs sm:text-sm">
             {product
               ? "Modifica le informazioni del prodotto esistente."
               : "Compila il form per aggiungere un nuovo prodotto."}
@@ -175,46 +175,65 @@ const ProductForm = ({
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 gap-4">
-              <FormField
-                control={form.control}
-                name="code"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Codice Prodotto</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="PRD-001" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <FormField
+                  control={form.control}
+                  name="code"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs sm:text-sm">Codice Prodotto</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          placeholder="PRD-001" 
+                          className="text-sm h-8 sm:h-10"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs sm:text-sm">Prezzo (€)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          min="0" 
+                          step="0.01"
+                          {...field} 
+                          onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                          value={field.value}
+                          placeholder="0.00" 
+                          className="text-sm h-8 sm:h-10"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+              </div>
               
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome Prodotto</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Nome Prodotto</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Nome del prodotto" />
+                      <Input 
+                        {...field} 
+                        placeholder="Nome del prodotto" 
+                        className="text-sm h-8 sm:h-10"
+                      />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Descrizione</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Descrizione opzionale" />
-                    </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -224,56 +243,52 @@ const ProductForm = ({
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Categoria</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Categoria</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="text-sm h-8 sm:h-10">
                           <SelectValue placeholder="Seleziona categoria" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {categories.map((category) => (
-                          <SelectItem key={category} value={category}>
+                          <SelectItem key={category} value={category} className="text-sm">
                             {category}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
               
               <FormField
                 control={form.control}
-                name="price"
+                name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Prezzo (€)</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Descrizione</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        min="0" 
-                        step="0.01"
+                      <Textarea 
                         {...field} 
-                        onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
-                        value={field.value}
-                        placeholder="0.00" 
+                        placeholder="Descrizione opzionale" 
+                        className="text-sm min-h-[60px] sm:min-h-[80px] resize-none"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
               
               <div>
-                <Label>Articoli Inclusi</Label>
-                <div className="border border-neutral-300 rounded-md p-3 mt-2">
-                  <ScrollArea className="h-48 pr-4">
-                    <div className="space-y-3">
+                <Label className="text-xs sm:text-sm">Articoli Inclusi</Label>
+                <div className="border border-neutral-300 rounded-md p-2 sm:p-3 mt-1 sm:mt-2">
+                  <ScrollArea className="h-36 sm:h-48 pr-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {articles?.map((article) => (
                         <div
                           key={article.id}
@@ -289,10 +304,11 @@ const ProductForm = ({
                                   checked === true
                                 )
                               }
+                              className="h-3.5 w-3.5 sm:h-4 sm:w-4"
                             />
                             <Label
                               htmlFor={`article-${article.id}`}
-                              className="ml-2 text-sm"
+                              className="ml-2 text-xs sm:text-sm line-clamp-1 flex-1 mr-1"
                             >
                               {article.name} ({article.code})
                             </Label>
@@ -307,7 +323,7 @@ const ProductForm = ({
                                 parseInt(e.target.value) || 1
                               )
                             }
-                            className="w-16 text-sm"
+                            className="w-12 sm:w-16 text-xs sm:text-sm h-6 sm:h-8"
                             disabled={!selectedArticles[article.id]?.selected}
                           />
                         </div>
@@ -318,11 +334,20 @@ const ProductForm = ({
               </div>
             </div>
             
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>
+            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-4 sm:mt-6">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onClose}
+                className="h-8 sm:h-10 text-xs sm:text-sm w-full sm:w-auto"
+              >
                 Annulla
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="h-8 sm:h-10 text-xs sm:text-sm w-full sm:w-auto"
+              >
                 {isLoading ? "Salvataggio..." : "Salva"}
               </Button>
             </DialogFooter>

@@ -101,12 +101,12 @@ const ArticleForm = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent className="max-w-[95vw] sm:max-w-[500px] p-4 sm:p-6">
+        <DialogHeader className="mb-2 sm:mb-4">
+          <DialogTitle className="text-lg sm:text-xl">
             {article ? "Modifica Articolo" : "Nuovo Articolo"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs sm:text-sm">
             {article
               ? "Modifica le informazioni dell'articolo esistente."
               : "Compila il form per aggiungere un nuovo articolo."}
@@ -114,32 +114,70 @@ const ArticleForm = ({
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 gap-4">
-              <FormField
-                control={form.control}
-                name="code"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Codice Articolo</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="ART-001" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <FormField
+                  control={form.control}
+                  name="code"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs sm:text-sm">Codice Articolo</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          placeholder="ART-001" 
+                          className="text-sm h-8 sm:h-10"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs sm:text-sm">Categoria</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="text-sm h-8 sm:h-10">
+                            <SelectValue placeholder="Seleziona categoria" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category} value={category} className="text-sm">
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+              </div>
               
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome Articolo</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Nome Articolo</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Nome dell'articolo" />
+                      <Input 
+                        {...field} 
+                        placeholder="Nome dell'articolo" 
+                        className="text-sm h-8 sm:h-10"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -149,59 +187,36 @@ const ArticleForm = ({
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Descrizione</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Descrizione</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder="Descrizione opzionale" />
+                      <Textarea 
+                        {...field} 
+                        placeholder="Descrizione opzionale" 
+                        className="text-sm min-h-[60px] sm:min-h-[80px] resize-none"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
               
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Categoria</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona categoria" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <FormField
                   control={form.control}
                   name="quantity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Quantità</FormLabel>
+                      <FormLabel className="text-xs sm:text-sm">Quantità</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           type="number"
                           min={0}
                           onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                          className="text-sm h-8 sm:h-10"
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -211,27 +226,37 @@ const ArticleForm = ({
                   name="threshold"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Soglia minima</FormLabel>
+                      <FormLabel className="text-xs sm:text-sm">Soglia minima</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           type="number"
                           min={0}
                           onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                          className="text-sm h-8 sm:h-10"
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
               </div>
             </div>
             
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>
+            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-4 sm:mt-6">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onClose}
+                className="h-8 sm:h-10 text-xs sm:text-sm w-full sm:w-auto"
+              >
                 Annulla
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="h-8 sm:h-10 text-xs sm:text-sm w-full sm:w-auto"
+              >
                 {isLoading ? "Salvataggio..." : "Salva"}
               </Button>
             </DialogFooter>

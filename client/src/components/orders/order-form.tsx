@@ -143,27 +143,31 @@ const OrderForm = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Nuovo Ordine</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-w-[95vw] sm:max-w-[600px] p-4 sm:p-6">
+        <DialogHeader className="mb-2 sm:mb-4">
+          <DialogTitle className="text-lg sm:text-xl">Nuovo Ordine</DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm">
             Compila il form per creare un nuovo ordine. Seleziona uno o più prodotti da includere.
           </DialogDescription>
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 gap-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
               <FormField
                 control={form.control}
                 name="code"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Codice Ordine</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Codice Ordine</FormLabel>
                     <FormControl>
-                      <Input {...field} disabled />
+                      <Input 
+                        {...field} 
+                        disabled 
+                        className="text-sm h-8 sm:h-10"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -173,21 +177,25 @@ const OrderForm = ({
                 name="notes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Note</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Note</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder="Note opzionali" />
+                      <Textarea 
+                        {...field} 
+                        placeholder="Note opzionali" 
+                        className="text-sm min-h-[60px] sm:min-h-[80px] resize-none"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
               
               <div>
-                <Label>Seleziona Prodotti</Label>
-                <div className="border border-neutral-300 rounded-md p-3 mt-2">
-                  <ScrollArea className="h-48 pr-4">
+                <Label className="text-xs sm:text-sm">Seleziona Prodotti</Label>
+                <div className="border border-neutral-300 rounded-md p-2 sm:p-3 mt-1 sm:mt-2">
+                  <ScrollArea className="h-36 sm:h-48 pr-3">
                     {availableProducts.length > 0 ? (
-                      <div className="space-y-3">
+                      <div className="space-y-2 sm:space-y-3">
                         {availableProducts.map((product) => (
                           <div
                             key={product.id}
@@ -203,15 +211,18 @@ const OrderForm = ({
                                     checked === true
                                   )
                                 }
+                                className="h-3.5 w-3.5 sm:h-4 sm:w-4"
                               />
                               <Label
                                 htmlFor={`product-${product.id}`}
-                                className="ml-2 text-sm"
+                                className="ml-2 text-xs sm:text-sm line-clamp-1 flex-1 mr-1"
                               >
                                 {product.name} ({product.code})
-                                <span className="ml-2 text-xs text-neutral-500">
-                                  {product.availability === "limited" && "(Disponibilità limitata)"}
-                                </span>
+                                {product.availability === "limited" && (
+                                  <span className="ml-1 text-[10px] sm:text-xs text-neutral-500">
+                                    (Disponibilità limitata)
+                                  </span>
+                                )}
                               </Label>
                             </div>
                             <Input
@@ -224,32 +235,41 @@ const OrderForm = ({
                                   parseInt(e.target.value) || 1
                                 )
                               }
-                              className="w-16 text-sm"
+                              className="w-12 sm:w-16 text-xs sm:text-sm h-6 sm:h-8"
                               disabled={!selectedProducts[product.id]?.selected}
                             />
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-4 text-neutral-500">
+                      <div className="text-center py-4 text-xs sm:text-sm text-neutral-500">
                         Nessun prodotto disponibile per l'ordine
                       </div>
                     )}
                   </ScrollArea>
                 </div>
                 {form.formState.errors.root && (
-                  <p className="text-sm font-medium text-destructive mt-2">
+                  <p className="text-xs sm:text-sm font-medium text-destructive mt-2">
                     {form.formState.errors.root.message}
                   </p>
                 )}
               </div>
             </div>
             
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>
+            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-4 sm:mt-6">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onClose}
+                className="h-8 sm:h-10 text-xs sm:text-sm w-full sm:w-auto"
+              >
                 Annulla
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="h-8 sm:h-10 text-xs sm:text-sm w-full sm:w-auto"
+              >
                 {isLoading ? "Creazione..." : "Crea Ordine"}
               </Button>
             </DialogFooter>
