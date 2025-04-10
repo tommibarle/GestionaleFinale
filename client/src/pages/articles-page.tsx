@@ -119,15 +119,15 @@ const ArticlesPage = () => {
     <div className="min-h-screen flex flex-col md:flex-row">
       <Sidebar isMobile={isMobile} />
       
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto pb-16 md:pb-0">
         <Header title="Gestione Articoli" />
         
-        <section className="p-4 md:p-6">
+        <section className="p-3 md:p-6">
           <div className="container mx-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-neutral-800">Articoli</h2>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 md:mb-6">
+              <h2 className="text-lg md:text-xl font-semibold text-neutral-800">Articoli</h2>
               <Button 
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 w-full sm:w-auto"
                 onClick={handleNewArticle}
               >
                 <Plus size={16} />
@@ -149,15 +149,15 @@ const ArticlesPage = () => {
             />
             
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-              <AlertDialogContent>
+              <AlertDialogContent className="max-w-[90vw] sm:max-w-lg">
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
-                  <AlertDialogDescription>
+                  <AlertDialogTitle className="text-base md:text-lg">Conferma eliminazione</AlertDialogTitle>
+                  <AlertDialogDescription className="text-sm">
                     Sei sicuro di voler eliminare l'articolo "{selectedArticle?.name}"? Questa azione non può essere annullata.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Annulla</AlertDialogCancel>
+                <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+                  <AlertDialogCancel className="mt-0 sm:mt-0">Annulla</AlertDialogCancel>
                   <AlertDialogAction 
                     onClick={confirmDelete}
                     className="bg-red-500 hover:bg-red-600"

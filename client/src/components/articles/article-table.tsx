@@ -112,23 +112,23 @@ const ArticleTable = ({ onEdit, onDelete }: ArticleTableProps) => {
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-          <div className="relative flex-1 max-w-md">
+      <div className="bg-white rounded-lg shadow-sm p-3 md:p-4 mb-4 md:mb-6">
+        <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between md:gap-4">
+          <div className="relative flex-1">
             <Input
               type="text"
               placeholder="Cerca articoli..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full"
+              className="pl-10 pr-4 py-2 w-full text-sm"
             />
             <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400">
               <Search size={16} />
             </div>
           </div>
-          <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[160px] text-sm">
                 <SelectValue placeholder="Tutte le categorie" />
               </SelectTrigger>
               <SelectContent>
@@ -141,7 +141,7 @@ const ArticleTable = ({ onEdit, onDelete }: ArticleTableProps) => {
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[160px] text-sm">
                 <SelectValue placeholder="Tutti gli stati" />
               </SelectTrigger>
               <SelectContent>
@@ -161,30 +161,36 @@ const ArticleTable = ({ onEdit, onDelete }: ArticleTableProps) => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Codice</TableHead>
+                <TableHead className="hidden md:table-cell">Codice</TableHead>
                 <TableHead>Articolo</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead>Quantità</TableHead>
-                <TableHead>Soglia</TableHead>
+                <TableHead className="hidden sm:table-cell">Categoria</TableHead>
+                <TableHead className="text-center">Quantità</TableHead>
+                <TableHead className="hidden md:table-cell">Soglia</TableHead>
                 <TableHead>Stato</TableHead>
-                <TableHead>Azioni</TableHead>
+                <TableHead className="text-right md:text-left">Azioni</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedArticles.map((article) => (
                 <TableRow key={article.id}>
-                  <TableCell className="font-medium">{article.code}</TableCell>
+                  <TableCell className="hidden md:table-cell font-medium text-xs md:text-sm">{article.code}</TableCell>
                   <TableCell>
-                    <div className="font-medium">{article.name}</div>
+                    <div className="font-medium text-xs md:text-sm">{article.name}</div>
+                    <div className="text-xs text-neutral-500 md:hidden">
+                      {article.code} - {article.category}
+                    </div>
                     {article.description && (
-                      <div className="text-xs text-neutral-500">
+                      <div className="text-xs text-neutral-500 line-clamp-1 md:line-clamp-2">
                         {article.description}
                       </div>
                     )}
                   </TableCell>
-                  <TableCell>{article.category}</TableCell>
-                  <TableCell>{article.quantity}</TableCell>
-                  <TableCell>{article.threshold}</TableCell>
+                  <TableCell className="hidden sm:table-cell text-xs md:text-sm">{article.category}</TableCell>
+                  <TableCell className="text-center text-xs md:text-sm">
+                    <span className="font-medium">{article.quantity}</span>
+                    <span className="md:hidden text-xs text-neutral-500"> / {article.threshold}</span>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell text-xs md:text-sm">{article.threshold}</TableCell>
                   <TableCell>
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(
@@ -194,12 +200,13 @@ const ArticleTable = ({ onEdit, onDelete }: ArticleTableProps) => {
                       {getStatusText(article.status)}
                     </span>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
+                  <TableCell className="text-right md:text-left">
+                    <div className="flex space-x-1 md:space-x-2 justify-end md:justify-start">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => onEdit(article)}
+                        aria-label="Modifica articolo"
                       >
                         <Pencil className="h-4 w-4 text-primary" />
                       </Button>
@@ -207,6 +214,7 @@ const ArticleTable = ({ onEdit, onDelete }: ArticleTableProps) => {
                         variant="ghost"
                         size="sm"
                         onClick={() => onDelete(article)}
+                        aria-label="Elimina articolo"
                       >
                         <Trash2 className="h-4 w-4 text-red-500" />
                       </Button>
@@ -219,9 +227,9 @@ const ArticleTable = ({ onEdit, onDelete }: ArticleTableProps) => {
         </div>
 
         {totalPages > 1 && (
-          <div className="py-4 px-6 border-t border-gray-200">
+          <div className="py-3 px-3 md:py-4 md:px-6 border-t border-gray-200">
             <Pagination>
-              <PaginationContent>
+              <PaginationContent className="flex-wrap justify-center">
                 <PaginationItem>
                   <PaginationPrevious
                     href="#"
@@ -229,24 +237,43 @@ const ArticleTable = ({ onEdit, onDelete }: ArticleTableProps) => {
                       e.preventDefault();
                       if (currentPage > 1) setCurrentPage(currentPage - 1);
                     }}
-                    className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                    className={`text-xs md:text-sm ${currentPage === 1 ? "pointer-events-none opacity-50" : ""}`}
                   />
                 </PaginationItem>
                 
-                {Array.from({ length: totalPages }).map((_, i) => (
-                  <PaginationItem key={i}>
-                    <PaginationLink
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setCurrentPage(i + 1);
-                      }}
-                      isActive={currentPage === i + 1}
-                    >
-                      {i + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
+                {Array.from({ length: totalPages }).map((_, i) => {
+                  // On mobile, show only current, first, last and one before/after current
+                  const isMobileView = isMobile;
+                  
+                  // Check if this page number should be visible
+                  const isVisible = !isMobileView || 
+                    i === 0 || // Always show first page
+                    i === totalPages - 1 || // Always show last page
+                    Math.abs(i + 1 - currentPage) <= 1; // Show current page and one before/after
+                  
+                  // Show ellipsis for hidden pages
+                  if (!isVisible && (i === 1 || i === totalPages - 2)) {
+                    return <PaginationItem key={i} className="mx-1">...</PaginationItem>;
+                  }
+                  
+                  if (!isVisible) return null;
+                  
+                  return (
+                    <PaginationItem key={i}>
+                      <PaginationLink
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setCurrentPage(i + 1);
+                        }}
+                        isActive={currentPage === i + 1}
+                        className="text-xs md:text-sm"
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
                 
                 <PaginationItem>
                   <PaginationNext
@@ -255,13 +282,13 @@ const ArticleTable = ({ onEdit, onDelete }: ArticleTableProps) => {
                       e.preventDefault();
                       if (currentPage < totalPages) setCurrentPage(currentPage + 1);
                     }}
-                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                    className={`text-xs md:text-sm ${currentPage === totalPages ? "pointer-events-none opacity-50" : ""}`}
                   />
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
-            <div className="text-sm text-center text-gray-600 mt-2">
-              Visualizzando {startIndex + 1} a {Math.min(startIndex + itemsPerPage, filteredArticles.length)} di {filteredArticles.length} risultati
+            <div className="text-xs md:text-sm text-center text-gray-600 mt-2">
+              {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredArticles.length)} di {filteredArticles.length} risultati
             </div>
           </div>
         )}
