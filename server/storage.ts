@@ -10,9 +10,17 @@ const MemoryStore = createMemoryStore(session);
 const PostgresSessionStore = connectPg(session);
 
 // Interface for storage operations
+export interface Parameters {
+  orderValue: number;
+}
+
 export interface IStorage {
   // Session store
   sessionStore: any; // Using any for session store type
+  
+  // Parameters operations
+  getParameters(): Promise<Parameters | null>;
+  setParameters(params: Parameters): Promise<void>;
 
   // User operations
   getUser(id: number): Promise<User | undefined>;
@@ -472,6 +480,7 @@ export class MemStorage implements IStorage {
 
 export class DatabaseStorage implements IStorage {
   public sessionStore: any;
+  private parameters: Parameters = { orderValue: 10 };
 
   constructor() {
     this.sessionStore = new PostgresSessionStore({
@@ -881,6 +890,15 @@ export class DatabaseStorage implements IStorage {
       articles: enrichedEntries,
       availability: 'available' // Will be calculated later
     };
+  }
+
+  // Parameters methods
+  async getParameters(): Promise<Parameters | null> {
+    return this.parameters;
+  }
+
+  async setParameters(params: Parameters): Promise<void> {
+    this.parameters = params;
   }
 
   private async enrichOrderWithProducts(order: Order): Promise<OrderWithProducts> {
