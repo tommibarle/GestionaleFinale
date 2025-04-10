@@ -1,54 +1,43 @@
-// Script di avvio per Railway
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
-import { createRequire } from 'module';
-import fs from 'fs';
+// File di avvio CommonJS per Railway
+const { spawn } = require('child_process');
+const path = require('path');
 
-// Imposta la directory globale dell'app
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-global.__dirname = __dirname;
-global.__filename = __filename;
+console.log('🚂 Avvio dell\'applicazione in ambiente Railway...');
+console.log(`📊 Porta assegnata: ${process.env.PORT || '(non impostata)'}`);
+console.log(`🔧 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+console.log(`📁 Directory di lavoro: ${process.cwd()}`);
 
-// Crea il require per supportare i moduli CommonJS
-const require = createRequire(import.meta.url);
+// Verifica l'esistenza del file compilato
+const fs = require('fs');
+const distFile = path.join(process.cwd(), 'dist/server/index.js');
 
-// Verifica la presenza di variabili d'ambiente critiche
-if (!process.env.DATABASE_URL) {
-  console.error('DATABASE_URL not set. Please configure your database connection.');
+if (!fs.existsSync(distFile)) {
+  console.error(`❌ File compilato non trovato: ${distFile}`);
+  console.error('Esegui prima il build dell\'applicazione');
   process.exit(1);
 }
 
-if (!process.env.SESSION_SECRET) {
-  console.error('SESSION_SECRET not set. Please configure your session secret.');
-  process.exit(1);
-}
+// Imposta la porta corretta
+process.env.PORT = process.env.PORT || '5000';
 
-// Imposta la porta con default a quella che Railway richiede
-const PORT = process.env.PORT || 3000;
-process.env.PORT = PORT.toString();
+// Esegui il file compilato
+console.log(`🚀 Avvio del server da: ${distFile}`);
+const server = spawn('node', [distFile], {
+  stdio: 'inherit',
+  env: process.env
+});
 
-// Verifica che il file compilato esista
-const indexPath = resolve(__dirname, 'dist', 'index.js');
-if (!fs.existsSync(indexPath)) {
-  console.error(`Could not find the built application at ${indexPath}. Make sure the build process completed successfully.`);
-  process.exit(1);
-}
+server.on('close', (code) => {
+  console.log(`Il server si è chiuso con codice ${code}`);
+  process.exit(code);
+});
 
-// Avvia l'applicazione
-try {
-  console.log(`Starting application from ${indexPath}`);
-  console.log(`Using PORT: ${PORT}`);
-  console.log(`DATABASE_URL is ${process.env.DATABASE_URL ? 'set' : 'not set'}`);
-  console.log(`SESSION_SECRET is ${process.env.SESSION_SECRET ? 'set' : 'not set'}`);
-  
-  // Importa ed esegui l'applicazione
-  import('./dist/index.js')
-    .catch(err => {
-      console.error('Failed to start the application:', err);
-      process.exit(1);
-    });
-} catch (error) {
-  console.error('Error starting the application:', error);
-  process.exit(1);
-}
+process.on('SIGINT', () => {
+  console.log('Ricevuto SIGINT, chiusura in corso...');
+  server.kill('SIGINT');
+});
+
+process.on('SIGTERM', () => {
+  console.log('Ricevuto SIGTERM, chiusura in corso...');
+  server.kill('SIGTERM');
+});

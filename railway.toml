@@ -1,12 +1,30 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm run build"
+watchPatterns = [
+  "client/**/*.ts",
+  "client/**/*.tsx",
+  "server/**/*.ts",
+  "shared/**/*.ts",
+  "Procfile",
+  "railway.toml",
+  "railway-start.js"
+]
 
 [deploy]
-startCommand = "npm start"
-healthcheckPath = "/"
-healthcheckTimeout = 100
+startCommand = "web"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 300
 restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
 
-[nixpacks]
-nodejs-version = "18"
+[phases.setup]
+aptPkgs = ["npm", "nodejs"]
+
+[phases.build]
+cmds = [
+  "npm ci",
+  "npm run build"
+]
+
+[phases.deploy]
+cmd = "node --experimental-modules railway-start.js"

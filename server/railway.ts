@@ -95,9 +95,9 @@ app.use((req, res, next) => {
     console.error(err);
   });
 
-  // Usa serveStatic per l'app in produzione
+  // Usa serveStaticRailway per l'app in produzione
   try {
-    serveStatic(app);
+    serveStaticRailway(app);
   } catch (error) {
     console.error("Error setting up static files:", error);
     // Fallback: serve almeno un messaggio di errore
