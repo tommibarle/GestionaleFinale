@@ -37,6 +37,9 @@ interface ArticleTableProps {
 
 const ArticleTable = ({ articles: externalArticles, onEdit, onDelete }: ArticleTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const itemsPerPage = 5;
   const isMobile = useIsMobile();
 
@@ -58,11 +61,6 @@ const ArticleTable = ({ articles: externalArticles, onEdit, onDelete }: ArticleT
     return <div className="text-center py-4">Nessun articolo trovato</div>;
   }
 
-  // Mantenere i filtri locali
-  const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-
   // Apply filters
   const filteredArticles = articles.filter((article) => {
     const matchesSearch =
@@ -81,7 +79,11 @@ const ArticleTable = ({ articles: externalArticles, onEdit, onDelete }: ArticleT
   });
 
   // Get unique categories for filter
-  const categories = [...new Set(articles.map((article) => article.category))];
+  const uniqueCategories = new Set<string>();
+  articles.forEach(article => {
+    if (article.category) uniqueCategories.add(article.category);
+  });
+  const categories = Array.from(uniqueCategories);
 
   // Pagination
   const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);

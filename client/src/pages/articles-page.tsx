@@ -201,7 +201,10 @@ const ArticlesPage = () => {
             
             {articles && filteredArticles && (
               <div className="text-sm text-neutral-500 mb-3">
-                Risultati: {filteredArticles.length} di {articles.length} articoli
+                {searchTerm || Object.values(activeFilters).some(v => v) ? 
+                  `Risultati: ${filteredArticles.length} di ${articles.length} articoli` : 
+                  `${articles.length} articoli totali`
+                }
               </div>
             )}
             
