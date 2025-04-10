@@ -10,5 +10,12 @@
     "railway:build": "npm run build",
     "railway:start": "npm run db:push && npm start",
     "db:push": "drizzle-kit push"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "latest",
+    "pg": "latest",
+    "@types/pg": "latest",
+    "drizzle-orm": "latest",
+    "ws": "latest"
   }
 }

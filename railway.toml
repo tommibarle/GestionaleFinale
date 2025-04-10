@@ -22,7 +22,7 @@ aptPkgs = ["npm", "nodejs"]
 
 [phases.build]
 cmds = [
-  "npm ci",
+  "npm install",
   "npm run build"
 ]
 
