@@ -139,6 +139,16 @@ export type OrderWithProducts = Order & {
   products: (OrderProduct & { product: Product })[];
 };
 
+// Parameters table
+export const parameters = pgTable("parameters", {
+  id: serial("id").primaryKey(),
+  orderValue: integer("order_value").notNull().default(10),
+});
+
+export type Parameters = {
+  orderValue: number;
+};
+
 // Extended schemas for forms
 export const loginSchema = z.object({
   email: z.string().email("Email non valido"),
