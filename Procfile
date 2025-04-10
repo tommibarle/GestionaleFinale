@@ -1,1 +1,1 @@
-web: npm run db:push && npm start
+web: ./railway-build.sh && node --experimental-modules dist/railway.js
