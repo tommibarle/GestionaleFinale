@@ -96,13 +96,16 @@ export const orderProducts = pgTable("order_products", {
   orderId: integer("order_id").notNull().references(() => orders.id, { onDelete: "cascade" }),
   productId: integer("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
   quantity: integer("quantity").notNull().default(1),
-  // Rimosse le colonne price e totalPrice che non esistono nel DB
+  price: integer("price").notNull().default(0),
+  totalPrice: integer("total_price").notNull().default(0),
 });
 
 export const insertOrderProductSchema = createInsertSchema(orderProducts).pick({
   orderId: true,
   productId: true,
   quantity: true,
+  price: true,
+  totalPrice: true,
 });
 
 // Types for ORM
