@@ -100,16 +100,11 @@ const OrderForm = ({
   };
 
   const handleProductQuantity = (productId: number, quantity: number) => {
-    const product = products?.find(p => p.id === productId);
-    const price = product?.price || 0;
-    
     setSelectedProducts((prev) => ({
       ...prev,
       [productId]: {
         selected: prev[productId]?.selected || false,
         quantity: quantity,
-        price: price,
-        totalPrice: price * quantity
       },
     }));
   };
