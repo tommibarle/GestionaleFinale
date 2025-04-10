@@ -402,8 +402,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const orders = await storage.getAllOrders();
       const lowStockArticles = await storage.getLowStockArticles();
       
-      // Calculate inventory value (example calculation)
-      const inventoryValue = articles.reduce((sum, article) => sum + (article.quantity * 10), 0);
+      // Get parameters for inventory value calculation
+      const params = await storage.getParameters();
+      const inventoryValue = articles.reduce((sum, article) => sum + (article.quantity * params.orderValue), 0);
       
       // Get recent orders (last 5)
       const recentOrders = orders

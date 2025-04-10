@@ -1,5 +1,5 @@
-import { users, articles, products, productArticles, orders, orderProducts } from "@shared/schema";
-import type { User, Article, Product, ProductArticle, Order, OrderProduct, InsertUser, InsertArticle, InsertProduct, InsertProductArticle, InsertOrder, InsertOrderProduct, ArticleWithStatus, ProductWithArticles, OrderWithProducts } from "@shared/schema";
+import { users, articles, products, productArticles, orders, orderProducts, parameters } from "@shared/schema";
+import type { User, Article, Product, ProductArticle, Order, OrderProduct, InsertUser, InsertArticle, InsertProduct, InsertProductArticle, InsertOrder, InsertOrderProduct, ArticleWithStatus, ProductWithArticles, OrderWithProducts, Parameters } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
@@ -53,6 +53,7 @@ export interface IStorage {
   calculateProductAvailability(product: ProductWithArticles): 'available' | 'limited' | 'unavailable';
   updateInventoryForOrder(order: Order, addToInventory?: boolean): Promise<boolean>;
   getLowStockArticles(): Promise<ArticleWithStatus[]>;
+  getParameters(): Promise<Parameters>;
 }
 
 export class MemStorage implements IStorage {
@@ -435,6 +436,10 @@ export class MemStorage implements IStorage {
   async getLowStockArticles(): Promise<ArticleWithStatus[]> {
     const allArticles = await this.getAllArticles();
     return allArticles.filter(article => article.quantity <= article.threshold);
+  }
+
+    async getParameters(): Promise<Parameters> {
+    return { orderValue: 10 }; // Default value
   }
 
   // Helper methods
@@ -908,6 +913,16 @@ export class DatabaseStorage implements IStorage {
       ...order,
       products: enrichedEntries
     };
+  }
+
+  async getParameters(): Promise<Parameters> {
+    try {
+      const [params] = await db.select().from(parameters);
+      return params ? { orderValue: params.orderValue } : { orderValue: 10 };
+    } catch (error) {
+      console.error("Error getting parameters:", error);
+      return { orderValue: 10 }; // Default value
+    }
   }
 }
 
