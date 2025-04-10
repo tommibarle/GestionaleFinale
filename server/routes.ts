@@ -535,29 +535,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Parameters routes
-  app.get("/api/parameters", isAuthenticated, async (req, res) => {
-    try {
-      const params = await storage.getParameters();
-      res.json(params || { orderValue: 10 });
-    } catch (error) {
-      res.status(500).json({ message: "Errore durante il recupero dei parametri" });
-    }
-  });
-
-  app.put("/api/parameters", isAdmin, async (req, res) => {
-    try {
-      const { orderValue } = req.body;
-      if (typeof orderValue !== 'number') {
-        return res.status(400).json({ message: "Valore non valido" });
-      }
-      await storage.setParameters({ orderValue });
-      res.json({ orderValue });
-    } catch (error) {
-      res.status(500).json({ message: "Errore durante l'aggiornamento dei parametri" });
-    }
-  });
-
   app.delete("/api/users/:id", isAdmin, async (req, res) => {
     try {
       const id = Number(req.params.id);
