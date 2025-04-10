@@ -9,6 +9,7 @@ import {
   Users,
   Menu,
   LogOut,
+  Tags,
 } from "lucide-react";
 
 interface SidebarProps {

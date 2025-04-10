@@ -11,6 +11,7 @@ import ArticlesPage from "@/pages/articles-page";
 import ProductsPage from "@/pages/products-page";
 import OrdersPage from "@/pages/orders-page";
 import UsersPage from "@/pages/users-page";
+import CategoriesPage from "@/pages/categories-page";
 import { Route } from "wouter";
 
 function Router() {
@@ -18,6 +19,7 @@ function Router() {
     <Switch>
       <ProtectedRoute path="/" component={DashboardPage} />
       <ProtectedRoute path="/articoli" component={ArticlesPage} />
+      <ProtectedRoute path="/categorie" component={CategoriesPage} />
       <ProtectedRoute path="/prodotti" component={ProductsPage} />
       <ProtectedRoute path="/ordini" component={OrdersPage} />
       <ProtectedRoute path="/utenti" component={UsersPage} />
