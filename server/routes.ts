@@ -402,9 +402,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const orders = await storage.getAllOrders();
       const lowStockArticles = await storage.getLowStockArticles();
       
-      // Get parameters for inventory value calculation
-      const params = await storage.getParameters();
-      const inventoryValue = articles.reduce((sum, article) => sum + (article.quantity * params.orderValue), 0);
+      // Calcola il valore dell'inventario con un valore fisso per ogni articolo
+      // In precedenza usavamo la tabella parameters che potrebbe non esistere
+      const inventoryValue = articles.reduce((sum, article) => sum + (article.quantity * 10), 0);
       
       // Get recent orders (last 5)
       const recentOrders = orders
@@ -420,6 +420,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         recentOrders
       });
     } catch (error) {
+      console.error("Errore dashboard:", error);
       res.status(500).json({ message: "Errore durante il recupero dei dati della dashboard" });
     }
   });
