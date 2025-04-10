@@ -21,7 +21,7 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
   deleteUser(id: number): Promise<boolean>;
-  
+
   // Article operations
   getAllArticles(): Promise<ArticleWithStatus[]>;
   getArticle(id: number): Promise<Article | undefined>;
@@ -29,7 +29,7 @@ export interface IStorage {
   createArticle(article: InsertArticle): Promise<Article>;
   updateArticle(id: number, article: Partial<InsertArticle>): Promise<Article | undefined>;
   deleteArticle(id: number): Promise<boolean>;
-  
+
   // Product operations
   getAllProducts(): Promise<ProductWithArticles[]>;
   getProduct(id: number): Promise<ProductWithArticles | undefined>;
@@ -38,7 +38,7 @@ export interface IStorage {
   addArticleToProduct(productArticle: InsertProductArticle): Promise<ProductArticle>;
   updateProduct(id: number, product: Partial<InsertProduct>): Promise<Product | undefined>;
   deleteProduct(id: number): Promise<boolean>;
-  
+
   // Order operations
   getAllOrders(): Promise<OrderWithProducts[]>;
   getOrder(id: number): Promise<OrderWithProducts | undefined>;
@@ -47,7 +47,7 @@ export interface IStorage {
   addProductToOrder(orderProduct: InsertOrderProduct): Promise<OrderProduct>;
   updateOrder(id: number, order: Partial<InsertOrder>): Promise<Order | undefined>;
   deleteOrder(id: number): Promise<boolean>;
-  
+
   // Inventory operations
   calculateArticleStatus(article: Article): 'available' | 'low' | 'critical' | 'out';
   calculateProductAvailability(product: ProductWithArticles): 'available' | 'limited' | 'unavailable';
@@ -62,9 +62,9 @@ export class MemStorage implements IStorage {
   private productArticles: Map<number, ProductArticle>;
   private orders: Map<number, Order>;
   private orderProducts: Map<number, OrderProduct>;
-  
+
   public sessionStore: any; // Using any for session store type
-  
+
   private userId: number;
   private articleId: number;
   private productId: number;
@@ -79,18 +79,18 @@ export class MemStorage implements IStorage {
     this.productArticles = new Map();
     this.orders = new Map();
     this.orderProducts = new Map();
-    
+
     this.userId = 1;
     this.articleId = 1;
     this.productId = 1;
     this.productArticleId = 1;
     this.orderId = 1;
     this.orderProductId = 1;
-    
+
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000 // 1 day in ms
     });
-    
+
     // Add default admin user with scrypt-compatible password hash for "password"
     this.createUser({
       email: "admin@esempio.it",
@@ -98,7 +98,7 @@ export class MemStorage implements IStorage {
       name: "Admin Manager",
       role: "admin"
     });
-    
+
     // Add some sample articles
     this.createArticle({
       code: "ART-001",
@@ -108,7 +108,7 @@ export class MemStorage implements IStorage {
       quantity: 25,
       threshold: 50
     });
-    
+
     this.createArticle({
       code: "ART-002",
       name: "Bottoni Dorati",
@@ -117,7 +117,7 @@ export class MemStorage implements IStorage {
       quantity: 12,
       threshold: 30
     });
-    
+
     this.createArticle({
       code: "ART-003",
       name: "Etichette Logo Grande",
@@ -126,7 +126,7 @@ export class MemStorage implements IStorage {
       quantity: 5,
       threshold: 20
     });
-    
+
     this.createArticle({
       code: "ART-004",
       name: "Cerniere Piccole",
@@ -135,7 +135,7 @@ export class MemStorage implements IStorage {
       quantity: 0,
       threshold: 15
     });
-    
+
     this.createArticle({
       code: "ART-005",
       name: "Vetro 10x15cm",
@@ -165,24 +165,24 @@ export class MemStorage implements IStorage {
     this.users.set(id, newUser);
     return newUser;
   }
-  
+
   async getAllUsers(): Promise<User[]> {
     return Array.from(this.users.values());
   }
-  
+
   async updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined> {
     const existingUser = this.users.get(id);
     if (!existingUser) return undefined;
-    
+
     const updatedUser: User = {
       ...existingUser,
       ...userData
     };
-    
+
     this.users.set(id, updatedUser);
     return updatedUser;
   }
-  
+
   async deleteUser(id: number): Promise<boolean> {
     return this.users.delete(id);
   }
@@ -219,13 +219,13 @@ export class MemStorage implements IStorage {
   async updateArticle(id: number, article: Partial<InsertArticle>): Promise<Article | undefined> {
     const existingArticle = this.articles.get(id);
     if (!existingArticle) return undefined;
-    
+
     const updatedArticle: Article = {
       ...existingArticle,
       ...article,
       updatedAt: new Date()
     };
-    
+
     this.articles.set(id, updatedArticle);
     return updatedArticle;
   }
@@ -248,7 +248,7 @@ export class MemStorage implements IStorage {
   async getProduct(id: number): Promise<ProductWithArticles | undefined> {
     const product = this.products.get(id);
     if (!product) return undefined;
-    
+
     const productWithArticles = this.enrichProductWithArticles(product);
     return {
       ...productWithArticles,
@@ -259,7 +259,7 @@ export class MemStorage implements IStorage {
   async getProductByCode(code: string): Promise<ProductWithArticles | undefined> {
     const product = Array.from(this.products.values()).find(product => product.code === code);
     if (!product) return undefined;
-    
+
     const productWithArticles = this.enrichProductWithArticles(product);
     return {
       ...productWithArticles,
@@ -290,13 +290,13 @@ export class MemStorage implements IStorage {
   async updateProduct(id: number, product: Partial<InsertProduct>): Promise<Product | undefined> {
     const existingProduct = this.products.get(id);
     if (!existingProduct) return undefined;
-    
+
     const updatedProduct: Product = {
       ...existingProduct,
       ...product,
       updatedAt: new Date()
     };
-    
+
     this.products.set(id, updatedProduct);
     return updatedProduct;
   }
@@ -306,7 +306,7 @@ export class MemStorage implements IStorage {
     Array.from(this.productArticles.values())
       .filter(pa => pa.productId === id)
       .forEach(pa => this.productArticles.delete(pa.id));
-    
+
     return this.products.delete(id);
   }
 
@@ -318,14 +318,14 @@ export class MemStorage implements IStorage {
   async getOrder(id: number): Promise<OrderWithProducts | undefined> {
     const order = this.orders.get(id);
     if (!order) return undefined;
-    
+
     return this.enrichOrderWithProducts(order);
   }
 
   async getOrderByCode(code: string): Promise<OrderWithProducts | undefined> {
     const order = Array.from(this.orders.values()).find(order => order.code === code);
     if (!order) return undefined;
-    
+
     return this.enrichOrderWithProducts(order);
   }
 
@@ -352,13 +352,13 @@ export class MemStorage implements IStorage {
   async updateOrder(id: number, order: Partial<InsertOrder>): Promise<Order | undefined> {
     const existingOrder = this.orders.get(id);
     if (!existingOrder) return undefined;
-    
+
     const updatedOrder: Order = {
       ...existingOrder,
       ...order,
       updatedAt: new Date()
     };
-    
+
     this.orders.set(id, updatedOrder);
     return updatedOrder;
   }
@@ -368,7 +368,7 @@ export class MemStorage implements IStorage {
     Array.from(this.orderProducts.values())
       .filter(op => op.orderId === id)
       .forEach(op => this.orderProducts.delete(op.id));
-    
+
     return this.orders.delete(id);
   }
 
@@ -382,41 +382,41 @@ export class MemStorage implements IStorage {
 
   calculateProductAvailability(product: ProductWithArticles): 'available' | 'limited' | 'unavailable' {
     if (!product.articles || product.articles.length === 0) return 'available';
-    
+
     const articleStatuses = product.articles.map(pa => {
       const article = pa.article;
       const status = this.calculateArticleStatus(article);
       return { status, required: pa.quantity, available: article.quantity };
     });
-    
+
     if (articleStatuses.some(as => as.status === 'out' || as.available < as.required)) {
       return 'unavailable';
     }
-    
+
     if (articleStatuses.some(as => as.status === 'critical' || as.status === 'low')) {
       return 'limited';
     }
-    
+
     return 'available';
   }
 
   async updateInventoryForOrder(order: Order, addToInventory: boolean = false): Promise<boolean> {
     const orderWithProducts = await this.getOrder(order.id);
     if (!orderWithProducts) return false;
-    
+
     // For each product in the order
     for (const op of orderWithProducts.products) {
       const product = await this.getProduct(op.productId);
       if (!product) continue;
-      
+
       // For each article in the product
       for (const pa of product.articles) {
         const article = await this.getArticle(pa.articleId);
         if (!article) continue;
-        
+
         // Calculate total article quantity needed for this order
         const quantityChange = pa.quantity * op.quantity;
-        
+
         // Update article quantity
         if (addToInventory) {
           article.quantity += quantityChange;
@@ -424,19 +424,17 @@ export class MemStorage implements IStorage {
           article.quantity -= quantityChange;
           if (article.quantity < 0) article.quantity = 0; // Prevent negative quantities
         }
-        
+
         await this.updateArticle(article.id, { quantity: article.quantity });
       }
     }
-    
+
     return true;
   }
 
   async getLowStockArticles(): Promise<ArticleWithStatus[]> {
     const allArticles = await this.getAllArticles();
-    return allArticles.filter(article => 
-      article.status === 'low' || article.status === 'critical' || article.status === 'out'
-    );
+    return allArticles.filter(article => article.quantity <= article.threshold);
   }
 
   // Helper methods
@@ -447,7 +445,7 @@ export class MemStorage implements IStorage {
         ...pa,
         article: this.articles.get(pa.articleId)!
       }));
-    
+
     return {
       ...product,
       articles: productArticleEntries,
@@ -462,7 +460,7 @@ export class MemStorage implements IStorage {
         ...op,
         product: this.products.get(op.productId)!
       }));
-    
+
     return {
       ...order,
       products: orderProductEntries
@@ -478,16 +476,16 @@ export class DatabaseStorage implements IStorage {
       pool,
       createTableIfMissing: true
     });
-    
+
     // Initialize the database with default data if needed
     this.initializeDatabase();
   }
-  
+
   private async initializeDatabase() {
     try {
       // Check if admin user exists
       const adminUser = await this.getUserByEmail("admin@esempio.it");
-      
+
       if (!adminUser) {
         // Add default admin user
         await this.createUser({
@@ -496,7 +494,7 @@ export class DatabaseStorage implements IStorage {
           name: "Admin Manager",
           role: "admin"
         });
-        
+
         // Add sample articles
         const article1 = await this.createArticle({
           code: "ART-001",
@@ -506,7 +504,7 @@ export class DatabaseStorage implements IStorage {
           quantity: 25,
           threshold: 50
         });
-        
+
         const article2 = await this.createArticle({
           code: "ART-002",
           name: "Bottoni Dorati",
@@ -515,7 +513,7 @@ export class DatabaseStorage implements IStorage {
           quantity: 12,
           threshold: 30
         });
-        
+
         const article3 = await this.createArticle({
           code: "ART-003",
           name: "Etichette Logo Grande",
@@ -524,7 +522,7 @@ export class DatabaseStorage implements IStorage {
           quantity: 5,
           threshold: 20
         });
-        
+
         const article4 = await this.createArticle({
           code: "ART-004",
           name: "Cerniere Piccole",
@@ -533,7 +531,7 @@ export class DatabaseStorage implements IStorage {
           quantity: 0,
           threshold: 15
         });
-        
+
         const article5 = await this.createArticle({
           code: "ART-005",
           name: "Vetro 10x15cm",
@@ -547,7 +545,7 @@ export class DatabaseStorage implements IStorage {
       console.error("Error initializing database:", error);
     }
   }
-  
+
   // User operations
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
@@ -566,11 +564,11 @@ export class DatabaseStorage implements IStorage {
     }).returning();
     return newUser;
   }
-  
+
   async getAllUsers(): Promise<User[]> {
     return await db.select().from(users).orderBy(asc(users.name));
   }
-  
+
   async updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined> {
     const [updatedUser] = await db.update(users)
       .set({
@@ -581,12 +579,12 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updatedUser;
   }
-  
+
   async deleteUser(id: number): Promise<boolean> {
     const result = await db.delete(users).where(eq(users.id, id));
     return true; // If no error was thrown, the operation was successful
   }
-  
+
   // Article operations
   async getAllArticles(): Promise<ArticleWithStatus[]> {
     const allArticles = await db.select().from(articles).orderBy(asc(articles.name));
@@ -637,13 +635,13 @@ export class DatabaseStorage implements IStorage {
       return false;
     }
   }
-  
+
   // Product operations
   async getAllProducts(): Promise<ProductWithArticles[]> {
     const allProducts = await db.select().from(products).orderBy(asc(products.name));
-    
+
     const productsWithArticles: ProductWithArticles[] = [];
-    
+
     for (const product of allProducts) {
       const productWithArticles = await this.enrichProductWithArticles(product);
       productsWithArticles.push({
@@ -651,14 +649,14 @@ export class DatabaseStorage implements IStorage {
         availability: this.calculateProductAvailability(productWithArticles)
       });
     }
-    
+
     return productsWithArticles;
   }
 
   async getProduct(id: number): Promise<ProductWithArticles | undefined> {
     const [product] = await db.select().from(products).where(eq(products.id, id));
     if (!product) return undefined;
-    
+
     const productWithArticles = await this.enrichProductWithArticles(product);
     return {
       ...productWithArticles,
@@ -669,7 +667,7 @@ export class DatabaseStorage implements IStorage {
   async getProductByCode(code: string): Promise<ProductWithArticles | undefined> {
     const [product] = await db.select().from(products).where(eq(products.code, code));
     if (!product) return undefined;
-    
+
     const productWithArticles = await this.enrichProductWithArticles(product);
     return {
       ...productWithArticles,
@@ -711,7 +709,7 @@ export class DatabaseStorage implements IStorage {
     try {
       // Delete product articles first to maintain referential integrity
       await db.delete(productArticles).where(eq(productArticles.productId, id));
-      
+
       // Then delete the product
       await db.delete(products).where(eq(products.id, id));
       return true;
@@ -719,31 +717,31 @@ export class DatabaseStorage implements IStorage {
       return false;
     }
   }
-  
+
   // Order operations
   async getAllOrders(): Promise<OrderWithProducts[]> {
     const allOrders = await db.select().from(orders).orderBy(desc(orders.createdAt));
-    
+
     const ordersWithProducts: OrderWithProducts[] = [];
-    
+
     for (const order of allOrders) {
       ordersWithProducts.push(await this.enrichOrderWithProducts(order));
     }
-    
+
     return ordersWithProducts;
   }
 
   async getOrder(id: number): Promise<OrderWithProducts | undefined> {
     const [order] = await db.select().from(orders).where(eq(orders.id, id));
     if (!order) return undefined;
-    
+
     return this.enrichOrderWithProducts(order);
   }
 
   async getOrderByCode(code: string): Promise<OrderWithProducts | undefined> {
     const [order] = await db.select().from(orders).where(eq(orders.code, code));
     if (!order) return undefined;
-    
+
     return this.enrichOrderWithProducts(order);
   }
 
@@ -781,7 +779,7 @@ export class DatabaseStorage implements IStorage {
     try {
       // Delete order products first to maintain referential integrity
       await db.delete(orderProducts).where(eq(orderProducts.orderId, id));
-      
+
       // Then delete the order
       await db.delete(orders).where(eq(orders.id, id));
       return true;
@@ -789,7 +787,7 @@ export class DatabaseStorage implements IStorage {
       return false;
     }
   }
-  
+
   // Inventory calculations
   calculateArticleStatus(article: Article): 'available' | 'low' | 'critical' | 'out' {
     if (article.quantity === 0) return 'out';
@@ -800,41 +798,41 @@ export class DatabaseStorage implements IStorage {
 
   calculateProductAvailability(product: ProductWithArticles): 'available' | 'limited' | 'unavailable' {
     if (!product.articles || product.articles.length === 0) return 'available';
-    
+
     const articleStatuses = product.articles.map(pa => {
       const article = pa.article;
       const status = this.calculateArticleStatus(article);
       return { status, required: pa.quantity, available: article.quantity };
     });
-    
+
     if (articleStatuses.some(as => as.status === 'out' || as.available < as.required)) {
       return 'unavailable';
     }
-    
+
     if (articleStatuses.some(as => as.status === 'critical' || as.status === 'low')) {
       return 'limited';
     }
-    
+
     return 'available';
   }
 
   async updateInventoryForOrder(order: Order, addToInventory: boolean = false): Promise<boolean> {
     const orderWithProducts = await this.getOrder(order.id);
     if (!orderWithProducts) return false;
-    
+
     // For each product in the order
     for (const op of orderWithProducts.products) {
       const product = await this.getProduct(op.productId);
       if (!product) continue;
-      
+
       // For each article in the product
       for (const pa of product.articles) {
         const article = await this.getArticle(pa.articleId);
         if (!article) continue;
-        
+
         // Calculate total article quantity needed for this order
         const quantityChange = pa.quantity * op.quantity;
-        
+
         // Update article quantity
         let newQuantity: number;
         if (addToInventory) {
@@ -843,29 +841,32 @@ export class DatabaseStorage implements IStorage {
           newQuantity = article.quantity - quantityChange;
           if (newQuantity < 0) newQuantity = 0; // Prevent negative quantities
         }
-        
+
         await this.updateArticle(article.id, { quantity: newQuantity });
       }
     }
-    
+
     return true;
   }
 
   async getLowStockArticles(): Promise<ArticleWithStatus[]> {
-    const allArticles = await this.getAllArticles();
-    return allArticles.filter(article => 
-      article.status === 'low' || article.status === 'critical' || article.status === 'out'
-    );
+    try {
+      const articles = await this.getAllArticles();
+      return articles.filter(article => article.quantity <= article.threshold);
+    } catch (error) {
+      console.error("Error getting low stock articles:", error);
+      return [];
+    }
   }
-  
+
   // Helper methods
   private async enrichProductWithArticles(product: Product): Promise<ProductWithArticles> {
     const productArticleEntries = await db.select()
       .from(productArticles)
       .where(eq(productArticles.productId, product.id));
-    
+
     const enrichedEntries = [];
-    
+
     for (const pa of productArticleEntries) {
       const article = await this.getArticle(pa.articleId);
       if (article) {
@@ -875,7 +876,7 @@ export class DatabaseStorage implements IStorage {
         });
       }
     }
-    
+
     return {
       ...product,
       articles: enrichedEntries,
@@ -887,14 +888,14 @@ export class DatabaseStorage implements IStorage {
     const orderProductEntries = await db.select()
       .from(orderProducts)
       .where(eq(orderProducts.orderId, order.id));
-    
+
     const enrichedEntries = [];
-    
+
     for (const op of orderProductEntries) {
       const [product] = await db.select()
         .from(products)
         .where(eq(products.id, op.productId));
-        
+
       if (product) {
         enrichedEntries.push({
           ...op,
@@ -902,7 +903,7 @@ export class DatabaseStorage implements IStorage {
         });
       }
     }
-    
+
     return {
       ...order,
       products: enrichedEntries
