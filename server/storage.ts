@@ -1,4 +1,4 @@
-import { users, articles, products, productArticles, orders, orderProducts, parameters } from "@shared/schema";
+import { users, articles, products, productArticles, orders, orderProducts } from "@shared/schema";
 import type { User, Article, Product, ProductArticle, Order, OrderProduct, InsertUser, InsertArticle, InsertProduct, InsertProductArticle, InsertOrder, InsertOrderProduct, ArticleWithStatus, ProductWithArticles, OrderWithProducts, Parameters } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -916,13 +916,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getParameters(): Promise<Parameters> {
-    try {
-      const [params] = await db.select().from(parameters);
-      return params ? { orderValue: params.orderValue } : { orderValue: 10 };
-    } catch (error) {
-      console.error("Error getting parameters:", error);
-      return { orderValue: 10 }; // Default value
-    }
+    // Semplificato per evitare errori con tabella parameters che non esiste
+    return { orderValue: 10 }; // Default value
   }
 }
 

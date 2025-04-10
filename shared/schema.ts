@@ -139,11 +139,7 @@ export type OrderWithProducts = Order & {
   products: (OrderProduct & { product: Product })[];
 };
 
-// Parameters table
-export const parameters = pgTable("parameters", {
-  id: serial("id").primaryKey(),
-  orderValue: integer("order_value").notNull().default(10),
-});
+// Note: Parameters table è stata rimossa per evitare errori
 
 export type Parameters = {
   orderValue: number;
