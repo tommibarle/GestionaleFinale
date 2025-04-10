@@ -52,6 +52,12 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
       active: location === "/articoli",
     },
     {
+      href: "/categorie",
+      label: "Categorie",
+      icon: <Tags className="w-5" />,
+      active: location === "/categorie",
+    },
+    {
       href: "/prodotti",
       label: "Prodotti",
       icon: <PackageOpen className="w-5" />,

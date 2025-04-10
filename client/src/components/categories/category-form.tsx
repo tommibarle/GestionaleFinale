@@ -1,18 +1,18 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { insertCategorySchema, type Category } from "@shared/schema";
-import { useToast } from "@/hooks/use-toast";
-
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
 import {
   Form,
   FormControl,
@@ -21,15 +21,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
+import { Category, insertCategorySchema } from "@shared/schema";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
+// Schema esteso per la validazione del form
 const formSchema = insertCategorySchema.extend({
-  code: z.string().min(3, "Il codice deve avere almeno 3 caratteri"),
-  name: z.string().min(2, "Il nome deve avere almeno 2 caratteri"),
+  code: z.string().min(2, {
+    message: "Il codice deve contenere almeno 2 caratteri",
+  }),
+  name: z.string().min(2, {
+    message: "Il nome deve contenere almeno 2 caratteri",
+  }),
 });
 
 type CategoryFormProps = {
@@ -39,96 +44,109 @@ type CategoryFormProps = {
 };
 
 export default function CategoryForm({ category, isOpen, onClose }: CategoryFormProps) {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEditMode = !!category;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      code: category?.code || "",
-      name: category?.name || "",
-      description: category?.description || "",
+      code: "",
+      name: "",
+      description: "",
     },
   });
 
+  useEffect(() => {
+    if (category) {
+      form.reset({
+        code: category.code,
+        name: category.name,
+        description: category.description || "",
+      });
+    } else {
+      form.reset({
+        code: "",
+        name: "",
+        description: "",
+      });
+    }
+  }, [category, form]);
+
   const createMutation = useMutation({
-    mutationFn: async (formData: z.infer<typeof formSchema>) => {
-      const res = await apiRequest(
-        "POST",
-        "/api/categories",
-        formData
-      );
-      return await res.json();
+    mutationFn: async (values: z.infer<typeof formSchema>) => {
+      const response = await apiRequest("POST", "/api/categories", values);
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
-      toast({
-        title: "Categoria creata",
-        description: "La categoria è stata creata con successo.",
-      });
       form.reset();
       onClose();
+      toast({
+        title: "Categoria creata",
+        description: "La categoria è stata creata con successo",
+      });
     },
     onError: (error: Error) => {
       toast({
         title: "Errore",
-        description: error.message || "Si è verificato un errore durante la creazione della categoria.",
+        description: "Impossibile creare la categoria: " + error.message,
         variant: "destructive",
       });
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (formData: z.infer<typeof formSchema>) => {
-      const res = await apiRequest(
-        "PUT",
-        `/api/categories/${category?.id}`,
-        formData
+    mutationFn: async (values: z.infer<typeof formSchema>) => {
+      const response = await apiRequest(
+        "PATCH",
+        "/api/categories/" + category?.id,
+        values
       );
-      return await res.json();
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      form.reset();
+      onClose();
       toast({
         title: "Categoria aggiornata",
-        description: "La categoria è stata aggiornata con successo.",
+        description: "La categoria è stata aggiornata con successo",
       });
-      onClose();
     },
     onError: (error: Error) => {
       toast({
         title: "Errore",
-        description: error.message || "Si è verificato un errore durante l'aggiornamento della categoria.",
+        description: "Impossibile aggiornare la categoria: " + error.message,
         variant: "destructive",
       });
     },
   });
 
+  const isPending = createMutation.isPending || updateMutation.isPending;
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
-    try {
-      if (category) {
-        await updateMutation.mutateAsync(values);
-      } else {
-        await createMutation.mutateAsync(values);
-      }
-    } finally {
-      setIsSubmitting(false);
+    if (isEditMode) {
+      updateMutation.mutate(values);
+    } else {
+      createMutation.mutate(values);
     }
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {category ? "Modifica Categoria" : "Nuova Categoria"}
+            {isEditMode ? "Modifica categoria" : "Nuova categoria"}
           </DialogTitle>
+          <DialogDescription>
+            {isEditMode
+              ? "Modifica i dettagli della categoria esistente."
+              : "Aggiungi una nuova categoria per organizzare gli articoli."}
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="code"
@@ -136,13 +154,17 @@ export default function CategoryForm({ category, isOpen, onClose }: CategoryForm
                 <FormItem>
                   <FormLabel>Codice</FormLabel>
                   <FormControl>
-                    <Input placeholder="Codice categoria (es. CAT-001)" {...field} />
+                    <Input 
+                      placeholder="Inserisci il codice (es. CAT1)" 
+                      {...field} 
+                      disabled={isEditMode || isPending}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
+            
             <FormField
               control={form.control}
               name="name"
@@ -150,13 +172,17 @@ export default function CategoryForm({ category, isOpen, onClose }: CategoryForm
                 <FormItem>
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nome categoria" {...field} />
+                    <Input 
+                      placeholder="Inserisci il nome della categoria" 
+                      {...field} 
+                      disabled={isPending}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
+            
             <FormField
               control={form.control}
               name="description"
@@ -164,10 +190,11 @@ export default function CategoryForm({ category, isOpen, onClose }: CategoryForm
                 <FormItem>
                   <FormLabel>Descrizione</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Inserisci una descrizione per la categoria"
-                      {...field}
-                      value={field.value || ""}
+                    <Textarea 
+                      placeholder="Inserisci una descrizione opzionale" 
+                      className="resize-none" 
+                      {...field} 
+                      disabled={isPending}
                     />
                   </FormControl>
                   <FormMessage />
@@ -175,18 +202,23 @@ export default function CategoryForm({ category, isOpen, onClose }: CategoryForm
               )}
             />
 
-            <div className="flex justify-end space-x-4">
-              <Button variant="outline" type="button" onClick={onClose}>
+            <DialogFooter>
+              <Button variant="outline" type="button" onClick={onClose} disabled={isPending}>
                 Annulla
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting
-                  ? "Salvataggio in corso..."
-                  : category
-                  ? "Aggiorna"
-                  : "Crea"}
+              <Button type="submit" disabled={isPending}>
+                {isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Salvataggio...
+                  </>
+                ) : isEditMode ? (
+                  "Aggiorna"
+                ) : (
+                  "Crea"
+                )}
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>
