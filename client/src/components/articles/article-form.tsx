@@ -50,23 +50,13 @@ const ArticleForm = ({
   article,
   isLoading = false,
 }: ArticleFormProps) => {
-  const [categories] = useState([
-    "Viti",
-    "Bottoni",
-    "Etichette",
-    "Cerniere",
-    "Vetri",
-    "Legno",
-    "Altro",
-  ]);
-  
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
       code: "",
       name: "",
       description: "",
-      category: "",
+      category: "Altro", // Manteniamo un valore di default per evitare errori
       quantity: 0,
       threshold: 0,
     },
@@ -135,33 +125,7 @@ const ArticleForm = ({
                   )}
                 />
                 
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs sm:text-sm">Categoria</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="text-sm h-8 sm:h-10">
-                            <SelectValue placeholder="Seleziona categoria" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem key={category} value={category} className="text-sm">
-                              {category}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage className="text-xs" />
-                    </FormItem>
-                  )}
-                />
+
               </div>
               
               <FormField

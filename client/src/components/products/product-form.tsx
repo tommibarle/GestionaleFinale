@@ -66,14 +66,6 @@ const ProductForm = ({
     [key: number]: { selected: boolean; quantity: number };
   }>({});
   
-  const [categories] = useState([
-    "Mobili",
-    "Accessori",
-    "Scatole",
-    "Cornici",
-    "Altro",
-  ]);
-  
   const { data: articles } = useQuery<ArticleWithStatus[]>({
     queryKey: ["/api/articles"],
   });
@@ -84,7 +76,7 @@ const ProductForm = ({
       code: "",
       name: "",
       description: "",
-      category: categories[0], // imposta il primo valore come default
+      category: "Altro", // imposta un valore di default per evitare errori
       price: 0,
     },
   });
@@ -118,7 +110,7 @@ const ProductForm = ({
         code: "",
         name: "",
         description: "",
-        category: categories[0],
+        category: "Altro",
         price: 0,
       });
       
@@ -238,33 +230,7 @@ const ProductForm = ({
                 )}
               />
               
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs sm:text-sm">Categoria</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="text-sm h-8 sm:h-10">
-                          <SelectValue placeholder="Seleziona categoria" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category} value={category} className="text-sm">
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage className="text-xs" />
-                  </FormItem>
-                )}
-              />
+
               
               <FormField
                 control={form.control}
