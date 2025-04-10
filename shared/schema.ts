@@ -40,7 +40,8 @@ export const articles = pgTable("articles", {
   code: text("code").notNull().unique(),
   name: text("name").notNull(),
   description: text("description"),
-  category: text("category").notNull(),
+  category: text("category").notNull(), // Manteniamo il testo per retrocompatibilità
+  categoryId: integer("category_id").references(() => categories.id),  // Nuova colonna che riferisce all'ID della categoria
   quantity: integer("quantity").notNull().default(0),
   threshold: integer("threshold").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -52,6 +53,7 @@ export const insertArticleSchema = createInsertSchema(articles).pick({
   name: true,
   description: true,
   category: true,
+  categoryId: true, // Aggiungiamo il riferimento alla categoria
   quantity: true,
   threshold: true,
 });

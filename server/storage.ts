@@ -111,6 +111,37 @@ export class MemStorage implements IStorage {
       name: "Admin Manager",
       role: "admin"
     });
+    
+    // Add default categories
+    this.createCategory({
+      code: "CAT-001",
+      name: "Viti",
+      description: "Viti di varie dimensioni"
+    });
+    
+    this.createCategory({
+      code: "CAT-002",
+      name: "Bottoni",
+      description: "Bottoni decorativi e funzionali"
+    });
+    
+    this.createCategory({
+      code: "CAT-003", 
+      name: "Etichette",
+      description: "Etichette adesive di varie dimensioni"
+    });
+    
+    this.createCategory({
+      code: "CAT-004",
+      name: "Cerniere",
+      description: "Cerniere metalliche di vari tipi"
+    });
+    
+    this.createCategory({
+      code: "CAT-005",
+      name: "Vetri",
+      description: "Vetri temperati di varie dimensioni"
+    });
 
     // Add some sample articles
     this.createArticle({
@@ -555,6 +586,37 @@ export class DatabaseStorage implements IStorage {
           name: "Admin Manager",
           role: "admin"
         });
+        
+        // Add default categories
+        const categoryViti = await this.createCategory({
+          code: "CAT-001",
+          name: "Viti",
+          description: "Viti di varie dimensioni"
+        });
+        
+        const categoryBottoni = await this.createCategory({
+          code: "CAT-002",
+          name: "Bottoni",
+          description: "Bottoni decorativi e funzionali"
+        });
+        
+        const categoryEtichette = await this.createCategory({
+          code: "CAT-003",
+          name: "Etichette",
+          description: "Etichette adesive di varie dimensioni"
+        });
+        
+        const categoryCerniere = await this.createCategory({
+          code: "CAT-004",
+          name: "Cerniere",
+          description: "Cerniere metalliche di vari tipi"
+        });
+        
+        const categoryVetri = await this.createCategory({
+          code: "CAT-005",
+          name: "Vetri",
+          description: "Vetri temperati di varie dimensioni"
+        });
 
         // Add sample articles
         const article1 = await this.createArticle({
@@ -644,6 +706,53 @@ export class DatabaseStorage implements IStorage {
   async deleteUser(id: number): Promise<boolean> {
     const result = await db.delete(users).where(eq(users.id, id));
     return true; // If no error was thrown, the operation was successful
+  }
+  
+  // Category operations
+  async getAllCategories(): Promise<Category[]> {
+    return await db.select().from(categories).orderBy(asc(categories.name));
+  }
+
+  async getCategory(id: number): Promise<Category | undefined> {
+    const [category] = await db.select().from(categories).where(eq(categories.id, id));
+    return category;
+  }
+
+  async getCategoryByCode(code: string): Promise<Category | undefined> {
+    const [category] = await db.select().from(categories).where(eq(categories.code, code));
+    return category;
+  }
+
+  async createCategory(category: InsertCategory): Promise<Category> {
+    const now = new Date();
+    const [newCategory] = await db.insert(categories)
+      .values({
+        ...category,
+        createdAt: now,
+        updatedAt: now
+      })
+      .returning();
+    return newCategory;
+  }
+
+  async updateCategory(id: number, category: Partial<InsertCategory>): Promise<Category | undefined> {
+    const [updatedCategory] = await db.update(categories)
+      .set({
+        ...category,
+        updatedAt: new Date()
+      })
+      .where(eq(categories.id, id))
+      .returning();
+    return updatedCategory;
+  }
+
+  async deleteCategory(id: number): Promise<boolean> {
+    try {
+      await db.delete(categories).where(eq(categories.id, id));
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   // Article operations
