@@ -96,6 +96,8 @@ export const orderProducts = pgTable("order_products", {
   orderId: integer("order_id").notNull().references(() => orders.id, { onDelete: "cascade" }),
   productId: integer("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
   quantity: integer("quantity").notNull().default(1),
+  price: integer("price").notNull(),
+  totalPrice: integer("total_price").notNull(),
 });
 
 export const insertOrderProductSchema = createInsertSchema(orderProducts).pick({
