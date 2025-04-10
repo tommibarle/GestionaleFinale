@@ -47,6 +47,7 @@ export const products = pgTable("products", {
   name: text("name").notNull(),
   description: text("description"),
   category: text("category").notNull(),
+  price: integer("price").notNull().default(0), // Prezzo in centesimi di euro
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -56,6 +57,7 @@ export const insertProductSchema = createInsertSchema(products).pick({
   name: true,
   description: true,
   category: true,
+  price: true,
 });
 
 // Product-Article relationship (composition)

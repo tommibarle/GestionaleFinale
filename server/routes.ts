@@ -309,9 +309,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add products to the order and update inventory
       if (Array.isArray(products) && products.length > 0) {
         for (const product of products) {
+          // Ottieni il prodotto per ottenere il prezzo
+          const productInfo = await storage.getProduct(product.productId);
+          if (!productInfo) {
+            continue;
+          }
+          
+          // Calcola il prezzo totale in base alla quantità
+          const price = productInfo.price;
+          const totalPrice = price * product.quantity;
+          
           const orderProductData = insertOrderProductSchema.parse({
             ...product,
-            orderId: newOrder.id
+            orderId: newOrder.id,
+            price: price,
+            totalPrice: totalPrice
           });
           
           await storage.addProductToOrder(orderProductData);
@@ -402,9 +414,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const orders = await storage.getAllOrders();
       const lowStockArticles = await storage.getLowStockArticles();
       
-      // Calcola il valore dell'inventario con un valore fisso per ogni articolo
-      // In precedenza usavamo la tabella parameters che potrebbe non esistere
-      const inventoryValue = articles.reduce((sum, article) => sum + (article.quantity * 10), 0);
+      // Calcola il valore totale degli ordini
+      const totalOrdersValue = orders.reduce((sum, order) => {
+        // Aggiungi il prezzo totale di ogni prodotto nell'ordine
+        return sum + order.products.reduce((orderSum, op) => orderSum + op.totalPrice, 0);
+      }, 0);
       
       // Get recent orders (last 5)
       const recentOrders = orders
@@ -415,7 +429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalArticles: articles.length,
         totalProducts: products.length,
         totalOrders: orders.length,
-        inventoryValue,
+        totalOrdersValue,
         lowStockArticles,
         recentOrders
       });
