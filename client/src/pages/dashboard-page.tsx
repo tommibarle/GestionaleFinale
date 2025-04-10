@@ -28,7 +28,7 @@ interface DashboardData {
   totalArticles: number;
   totalProducts: number;
   totalOrders: number;
-  inventoryValue: number;
+  totalOrdersValue: number;
   lowStockArticles: ArticleWithStatus[];
   recentOrders: OrderWithProducts[];
 }
@@ -157,10 +157,10 @@ const DashboardPage = () => {
               />
               
               <DashboardCard
-                title="Valore magazzino"
-                value={isLoading ? "..." : `€ ${data?.inventoryValue.toLocaleString() || 0}`}
+                title="Totale ordini"
+                value={isLoading ? "..." : `€ ${data?.totalOrdersValue.toLocaleString() || 0}`}
                 icon={<EuroIcon size={20} />}
-                trend={{ value: "-5% nell'ultimo mese", isPositive: false }}
+                trend={{ value: "+8% nell'ultimo mese", isPositive: true }}
               />
             </div>
             

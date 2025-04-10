@@ -85,6 +85,7 @@ const ProductForm = ({
       name: "",
       description: "",
       category: categories[0], // imposta il primo valore come default
+      price: 0,
     },
   });
   
@@ -96,6 +97,7 @@ const ProductForm = ({
         name: product.name,
         description: product.description || "",
         category: product.category,
+        price: product.price || 0,
       });
       
       // Set selected articles
@@ -117,6 +119,7 @@ const ProductForm = ({
         name: "",
         description: "",
         category: categories[0],
+        price: 0,
       });
       
       setSelectedArticles({});
