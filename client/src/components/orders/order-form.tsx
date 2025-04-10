@@ -143,7 +143,7 @@ const OrderForm = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] sm:max-w-[600px] p-4 sm:p-6">
+      <DialogContent className="max-w-[95vw] sm:max-w-[600px] p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
         <DialogHeader className="mb-2 sm:mb-4">
           <DialogTitle className="text-lg sm:text-xl">Nuovo Ordine</DialogTitle>
           <DialogDescription className="text-xs sm:text-sm">
