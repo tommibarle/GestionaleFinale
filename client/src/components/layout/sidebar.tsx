@@ -76,8 +76,8 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
       <div className="p-4 border-b border-neutral-200">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">
-            <span className="text-primary">Gestionale</span>
-            <span className="text-neutral-800">Magazzino</span>
+            <span className="text-primary">Seventeen</span>
+            <span className="text-neutral-800">Boutique</span>
           </h1>
           {isMobile && (
             <button
