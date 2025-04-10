@@ -30,21 +30,25 @@ import {
 } from "@/components/ui/pagination";
 
 interface ArticleTableProps {
+  articles?: ArticleWithStatus[];
   onEdit: (article: ArticleWithStatus) => void;
   onDelete: (article: ArticleWithStatus) => void;
 }
 
-const ArticleTable = ({ onEdit, onDelete }: ArticleTableProps) => {
-  const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+const ArticleTable = ({ articles: externalArticles, onEdit, onDelete }: ArticleTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const isMobile = useIsMobile();
 
-  const { data: articles, isLoading } = useQuery<ArticleWithStatus[]>({
+  // Carica gli articoli dal server solo se non vengono forniti esternamente
+  const { data: fetchedArticles, isLoading: isLoadingArticles } = useQuery<ArticleWithStatus[]>({
     queryKey: ["/api/articles"],
+    enabled: !externalArticles, // Non eseguire la query se gli articoli sono stati passati come prop
   });
+  
+  // Utilizza gli articoli passati come prop se disponibili, altrimenti quelli caricati con la query
+  const articles = externalArticles || fetchedArticles;
+  const isLoading = !externalArticles && isLoadingArticles;
 
   if (isLoading) {
     return <div className="text-center py-4">Caricamento articoli...</div>;
@@ -53,6 +57,11 @@ const ArticleTable = ({ onEdit, onDelete }: ArticleTableProps) => {
   if (!articles || articles.length === 0) {
     return <div className="text-center py-4">Nessun articolo trovato</div>;
   }
+
+  // Mantenere i filtri locali
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   // Apply filters
   const filteredArticles = articles.filter((article) => {

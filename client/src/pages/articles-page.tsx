@@ -1,14 +1,15 @@
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, getQueryFn } from "@/lib/queryClient";
 import Sidebar from "@/components/layout/sidebar";
 import Header from "@/components/layout/header";
 import ArticleTable from "@/components/articles/article-table";
 import ArticleForm from "@/components/articles/article-form";
+import { SearchFilter, type FilterOption } from "@/components/ui/search-filter";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -31,6 +32,21 @@ const ArticlesPage = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState<ArticleWithStatus | undefined>(undefined);
+  
+  // Stato per la ricerca e filtri
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilters, setActiveFilters] = useState<Record<string, boolean>>({
+    lowStock: false,
+    outOfStock: false,
+    critical: false,
+  });
+  const [filteredArticles, setFilteredArticles] = useState<ArticleWithStatus[]>([]);
+  
+  // Carica gli articoli dal server
+  const { data: articles } = useQuery<ArticleWithStatus[]>({
+    queryKey: ["/api/articles"],
+    queryFn: getQueryFn({ on401: "throw" }),
+  });
   
   // Mutation for creating/updating an article
   const articleMutation = useMutation({
@@ -114,6 +130,42 @@ const ArticlesPage = () => {
   const handleFormSubmit = (data: any) => {
     articleMutation.mutate(data);
   };
+  
+  // Filtra gli articoli in base alla ricerca e ai filtri attivi
+  useEffect(() => {
+    if (!articles) return;
+    
+    const filtered = articles.filter(article => {
+      // Applica filtro di testo
+      const matchesSearch = searchTerm === "" || 
+        article.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        article.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        article.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (article.description && article.description.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      // Applica filtri per stato
+      let matchesFilters = true;
+      if (activeFilters.lowStock && article.status !== 'low') {
+        matchesFilters = false;
+      }
+      if (activeFilters.outOfStock && article.status !== 'out') {
+        matchesFilters = false;
+      }
+      if (activeFilters.critical && article.status !== 'critical') {
+        matchesFilters = false;
+      }
+      
+      return matchesSearch && matchesFilters;
+    });
+    
+    setFilteredArticles(filtered);
+  }, [articles, searchTerm, activeFilters]);
+  
+  // Gestisce la ricerca e i filtri
+  const handleSearch = (term: string, filters: Record<string, boolean>) => {
+    setSearchTerm(term);
+    setActiveFilters(filters);
+  };
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
@@ -124,7 +176,7 @@ const ArticlesPage = () => {
         
         <section className="p-3 md:p-6">
           <div className="container mx-auto">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 md:mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 md:mb-5">
               <h2 className="text-lg md:text-xl font-semibold text-neutral-800">Articoli</h2>
               <Button 
                 className="flex items-center gap-2 w-full sm:w-auto"
@@ -135,7 +187,26 @@ const ArticlesPage = () => {
               </Button>
             </div>
             
+            <div className="mb-4">
+              <SearchFilter
+                placeholder="Cerca articolo per nome, codice o categoria..."
+                onSearch={handleSearch}
+                filters={[
+                  { id: "lowStock", label: "Scorta bassa", value: activeFilters.lowStock },
+                  { id: "critical", label: "Scorta critica", value: activeFilters.critical },
+                  { id: "outOfStock", label: "Esaurito", value: activeFilters.outOfStock },
+                ]}
+              />
+            </div>
+            
+            {articles && filteredArticles && (
+              <div className="text-sm text-neutral-500 mb-3">
+                Risultati: {filteredArticles.length} di {articles.length} articoli
+              </div>
+            )}
+            
             <ArticleTable
+              articles={filteredArticles}
               onEdit={handleEditArticle}
               onDelete={handleDeleteArticle}
             />
