@@ -757,11 +757,20 @@ export class DatabaseStorage implements IStorage {
 
   // Article operations
   async getAllArticles(): Promise<ArticleWithStatus[]> {
-    const allArticles = await db.select().from(articles).orderBy(asc(articles.name));
-    return allArticles.map(article => ({
-      ...article,
-      status: this.calculateArticleStatus(article)
-    }));
+    try {
+      // Utilizziamo una query SQL diretta per evitare problemi con la colonna categoryId che potrebbe non esistere
+      const { rows } = await pool.query(`
+        SELECT * FROM articles ORDER BY name ASC
+      `);
+      
+      return rows.map(article => ({
+        ...article,
+        status: this.calculateArticleStatus(article)
+      }));
+    } catch (error) {
+      console.error("Errore nel recupero degli articoli:", error);
+      return [];
+    }
   }
 
   async getArticle(id: number): Promise<Article | undefined> {
@@ -1021,8 +1030,17 @@ export class DatabaseStorage implements IStorage {
 
   async getLowStockArticles(): Promise<ArticleWithStatus[]> {
     try {
-      const articles = await this.getAllArticles();
-      return articles.filter(article => article.quantity <= article.threshold);
+      // Utilizziamo una query SQL diretta per ottenere gli articoli con scorte basse
+      const { rows } = await pool.query(`
+        SELECT * FROM articles 
+        WHERE quantity <= threshold
+        ORDER BY quantity ASC
+      `);
+      
+      return rows.map(article => ({
+        ...article,
+        status: this.calculateArticleStatus(article)
+      }));
     } catch (error) {
       console.error("Error getting low stock articles:", error);
       return [];
