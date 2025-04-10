@@ -247,6 +247,28 @@ const ProductForm = ({
                 )}
               />
               
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Prezzo (€)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        min="0" 
+                        step="0.01"
+                        {...field} 
+                        onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                        value={field.value}
+                        placeholder="0.00" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
               <div>
                 <Label>Articoli Inclusi</Label>
                 <div className="border border-neutral-300 rounded-md p-3 mt-2">
