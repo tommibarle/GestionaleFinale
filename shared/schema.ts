@@ -137,6 +137,17 @@ export type OrderWithProducts = Order & {
   products: (OrderProduct & { product: Product })[];
 };
 
+// Parameters table
+export const parameters = pgTable("parameters", {
+  id: serial("id").primaryKey(),
+  orderValue: integer("order_value").notNull().default(10),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertParameterSchema = createInsertSchema(parameters);
+export type Parameter = typeof parameters.$inferSelect;
+export type InsertParameter = z.infer<typeof insertParameterSchema>;
+
 // Extended schemas for forms
 export const loginSchema = z.object({
   email: z.string().email("Email non valido"),
