@@ -180,7 +180,7 @@ const OrderForm = ({
                     <FormLabel className="text-xs sm:text-sm">Note</FormLabel>
                     <FormControl>
                       <Textarea 
-                        {...field} 
+                        {...field as any} 
                         placeholder="Note opzionali" 
                         className="text-sm min-h-[60px] sm:min-h-[80px] resize-none"
                       />
