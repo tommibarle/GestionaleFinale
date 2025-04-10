@@ -1,5 +1,5 @@
-import { users, articles, products, productArticles, orders, orderProducts } from "@shared/schema";
-import type { User, Article, Product, ProductArticle, Order, OrderProduct, InsertUser, InsertArticle, InsertProduct, InsertProductArticle, InsertOrder, InsertOrderProduct, ArticleWithStatus, ProductWithArticles, OrderWithProducts, Parameters } from "@shared/schema";
+import { users, articles, products, productArticles, orders, orderProducts, categories } from "@shared/schema";
+import type { User, Category, Article, Product, ProductArticle, Order, OrderProduct, InsertUser, InsertCategory, InsertArticle, InsertProduct, InsertProductArticle, InsertOrder, InsertOrderProduct, ArticleWithStatus, ProductWithArticles, OrderWithProducts, Parameters } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
@@ -21,6 +21,14 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
   deleteUser(id: number): Promise<boolean>;
+  
+  // Category operations
+  getAllCategories(): Promise<Category[]>;
+  getCategory(id: number): Promise<Category | undefined>;
+  getCategoryByCode(code: string): Promise<Category | undefined>;
+  createCategory(category: InsertCategory): Promise<Category>;
+  updateCategory(id: number, category: Partial<InsertCategory>): Promise<Category | undefined>;
+  deleteCategory(id: number): Promise<boolean>;
 
   // Article operations
   getAllArticles(): Promise<ArticleWithStatus[]>;
@@ -58,6 +66,7 @@ export interface IStorage {
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
+  private categories: Map<number, Category>;
   private articles: Map<number, Article>;
   private products: Map<number, Product>;
   private productArticles: Map<number, ProductArticle>;
@@ -67,6 +76,7 @@ export class MemStorage implements IStorage {
   public sessionStore: any; // Using any for session store type
 
   private userId: number;
+  private categoryId: number;
   private articleId: number;
   private productId: number;
   private productArticleId: number;
@@ -75,6 +85,7 @@ export class MemStorage implements IStorage {
 
   constructor() {
     this.users = new Map();
+    this.categories = new Map();
     this.articles = new Map();
     this.products = new Map();
     this.productArticles = new Map();
@@ -82,6 +93,7 @@ export class MemStorage implements IStorage {
     this.orderProducts = new Map();
 
     this.userId = 1;
+    this.categoryId = 1;
     this.articleId = 1;
     this.productId = 1;
     this.productArticleId = 1;
@@ -186,6 +198,50 @@ export class MemStorage implements IStorage {
 
   async deleteUser(id: number): Promise<boolean> {
     return this.users.delete(id);
+  }
+  
+  // Category operations
+  async getAllCategories(): Promise<Category[]> {
+    return Array.from(this.categories.values());
+  }
+
+  async getCategory(id: number): Promise<Category | undefined> {
+    return this.categories.get(id);
+  }
+
+  async getCategoryByCode(code: string): Promise<Category | undefined> {
+    return Array.from(this.categories.values()).find(category => category.code === code);
+  }
+
+  async createCategory(category: InsertCategory): Promise<Category> {
+    const id = this.categoryId++;
+    const now = new Date();
+    const newCategory: Category = {
+      ...category,
+      id,
+      createdAt: now,
+      updatedAt: now
+    };
+    this.categories.set(id, newCategory);
+    return newCategory;
+  }
+
+  async updateCategory(id: number, category: Partial<InsertCategory>): Promise<Category | undefined> {
+    const existingCategory = this.categories.get(id);
+    if (!existingCategory) return undefined;
+
+    const updatedCategory: Category = {
+      ...existingCategory,
+      ...category,
+      updatedAt: new Date()
+    };
+
+    this.categories.set(id, updatedCategory);
+    return updatedCategory;
+  }
+
+  async deleteCategory(id: number): Promise<boolean> {
+    return this.categories.delete(id);
   }
 
   // Article operations
